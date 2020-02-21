@@ -1,2 +1,3 @@
-:-consult("board.pl").
-:-consult("game.pl").
+:- consult('players.pl').
+:- consult('board.pl').
+:- consult('game.pl').

@@ -39,3 +39,23 @@ r_ControlerIdentite(J,I) :-
     personnage(PI,Pos,vivant),
     policier(PI).
 
+% Le personnage I1 tue le personnage I2
+r_Tuer(I1, I2) :-
+    personnage(I1, (X1,Y1), vivant),
+    personnage(I2, (X2,Y2), vivant),
+    (
+        % par couteau
+        (X1,Y1) == (X2,Y2), !
+        ;
+        % par pistolet
+        r_EtreAdjacent((X1,Y1), (X2,Y2)), !
+        ;
+        % par sniper
+        case((X1,Y1), true),
+        (X1 == X2 ; Y1 == Y2), !
+    ).
+
+a_Tuer(I1, I2) :-
+    r_Tuer(I1, I2),
+    retractall(personnage(I2,_,vivant)),
+    assert(personnage(I2,_,I1)).
