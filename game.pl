@@ -8,14 +8,14 @@
 
 r_EtreSurCaseSniper(I):-personnage(I,Pos,_), case(Pos,true).
 
-r_Deplacer(I,Pos,PosNew):-
+r_Deplacer(I,PosNew):-
     personnage(I,Pos,vivant),
     case(PosNew,_), PosNew\==Pos.
 
 % Si personnage pas mort, on peut le déplacer sur une autre case si celle-ci existe
-a_Deplacer(I,Pos,PosNew):-
-    deplacerRecherche(I,Pos,PosNew),
-    retractall(personnage(I,Pos,vivant)),
+a_Deplacer(I,PosNew):-
+    r_Deplacer(I,PosNew),
+    retractall(personnage(I,_,vivant)),
     assert(personnage(I,PosNew,vivant)).
 
 % TESTS SWI
@@ -33,3 +33,24 @@ r_EtreAdjacent((X1,Y1),(X2,Y2)):-
     abs(X1 - X2, R1),
     abs(Y1 - Y2, R2),
     1 is R1 + R2.
+
+% Le personnage I1 tue le personnage I2
+r_Tuer(I1, I2) :-
+    personnage(I1, (X1,Y1), vivant),
+    personnage(I2, (X2,Y2), vivant),
+    (
+        % par couteau
+        (X1,Y1) == (X2,Y2), !
+        ;
+        % par pistolet
+        r_EtreAdjacent((X1,Y1), (X2,Y2)), !
+        ;
+        % par sniper
+        case((X1,Y1), true),
+        (X1 == X2 ; Y1 == Y2), !
+    ).
+
+a_Tuer(I1, I2) :-
+    r_Tuer(I1, I2),
+    retractall(personnage(I2,_,vivant)),
+    assert(personnage(I2,_,I1)).
