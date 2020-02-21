@@ -14,7 +14,7 @@ r_Deplacer(I,Pos,PosNew):-
 
 % Si personnage pas mort, on peut le déplacer sur une autre case si celle-ci existe
 a_Deplacer(I,Pos,PosNew):-
-    deplacerRecherche(I,Pos,PosNew),
+    r_Deplacer(I,Pos,PosNew),
     retractall(personnage(I,Pos,vivant)),
     assert(personnage(I,PosNew,vivant)).
 

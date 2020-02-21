@@ -36,3 +36,14 @@
 :-assert(case((3,4),true)).
 :-assert(case((4,2),true)).
 :-assert(case((4,3),false)).
+
+% personnage(identifiantPolicier,(x,y),QuiL'aTué) : positionné en -1,-1 au début du jeu car pas sur le plateau
+:-assert(personnage(p1,nonPose,vivant)).
+:-assert(personnage(p2,nonPose,vivant)).
+:-assert(personnage(p3,nonPose,vivant)).
+:-assert(personnage(p4,nonPose,vivant)).
+:-assert(personnage(p5,nonPose,vivant)).
+:-assert(personnage(p6,nonPose,vivant)).
+:-assert(personnage(p7,nonPose,vivant)).
+:-assert(personnage(p8,nonPose,vivant)).
+
