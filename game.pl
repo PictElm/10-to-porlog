@@ -8,25 +8,15 @@
 
 r_EtreSurCaseSniper(I):-personnage(I,Pos,_), case(Pos,true).
 
-r_DeplacerPersonnage(I,Pos,PosNew):-
+r_Deplacer(I,PosNew):-
     personnage(I,Pos,vivant),
     case(PosNew,_), PosNew\==Pos.
 
-r_DeplacerPolicier(I,Pos,PosNew):-
-    policier(I,Pos,vivant),
-    case(PosNew,_), PosNew\==Pos.
-
 % Si personnage pas mort, on peut le déplacer sur une autre case si celle-ci existe
-a_DeplacerPersonnage(I,Pos,PosNew):-
-    r_DeplacerPersonnage(I,Pos,PosNew),
-    retractall(personnage(I,Pos,vivant)),
+a_Deplacer(I,PosNew):-
+    r_Deplacer(I,PosNew),
+    retractall(personnage(I,_,vivant)),
     assert(personnage(I,PosNew,vivant)).
-
-%version policier
-a_DeplacerPolicier(I,Pos,PosNew):-
-    r_DeplacerPolicier(I,Pos,PosNew),
-    retractall(policier(I,_,vivant)),
-    assert(policier(I,PosNew,vivant)).
 
 % TESTS SWI
 % personnage(a,X,vivant). =>X = (0,3)
@@ -46,5 +36,6 @@ r_EtreAdjacent((X1,Y1),(X2,Y2)):-
 
 r_ControlerIdentite(J,I) :- 
     personnage(I,Pos,vivant),
-    policier(_,Pos,vivant).
+    personnage(PI,Pos,vivant),
+    policier(PI).
 

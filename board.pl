@@ -40,11 +40,21 @@
 :-assert(case((4,3),false)).
 
 % personnage(identifiantPolicier,(x,y),QuiL'aTué) : positionné en -1,-1 au début du jeu car pas sur le plateau
-:-assert(policier(p1,nonPose,vivant)).
-:-assert(policier(p2,nonPose,vivant)).
-:-assert(policier(p3,nonPose,vivant)).
-:-assert(policier(p4,nonPose,vivant)).
-:-assert(policier(p5,nonPose,vivant)).
-:-assert(policier(p6,nonPose,vivant)).
-:-assert(policier(p7,nonPose,vivant)).
-:-assert(policier(p8,nonPose,vivant)).
+:-assert(personnage(p1,nonPose,vivant)).
+:-assert(personnage(p2,nonPose,vivant)).
+:-assert(personnage(p3,nonPose,vivant)).
+:-assert(personnage(p4,nonPose,vivant)).
+:-assert(personnage(p5,nonPose,vivant)).
+:-assert(personnage(p6,nonPose,vivant)).
+:-assert(personnage(p7,nonPose,vivant)).
+:-assert(personnage(p8,nonPose,vivant)).
+
+:-assert(policier(p1)).
+:-assert(policier(p2)).
+:-assert(policier(p3)).
+:-assert(policier(p4)).
+:-assert(policier(p5)).
+:-assert(policier(p6)).
+:-assert(policier(p7)).
+:-assert(policier(p8)).
+
