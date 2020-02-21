@@ -42,6 +42,7 @@ r_ControlerIdentite(J,I) :-
 % Le personnage I1 tue le personnage I2
 r_Tuer(I1, I2) :-
     personnage(I1, (X1,Y1), vivant),
+    \+ policier(I1),
     personnage(I2, (X2,Y2), vivant),
     (
         % par couteau
