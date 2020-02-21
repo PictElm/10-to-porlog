@@ -1,5 +1,7 @@
 :-abolish(personnage,3).
+:-abolish(policier,3).
 :-abolish(case,2).
+
 
 %personnage(identifiant,(x,y),QuiL'aTué?).
 :-assert(personnage(a,(0,3),vivant)). % vivant ou lettre pour avoir index du killer
@@ -38,12 +40,11 @@
 :-assert(case((4,3),false)).
 
 % personnage(identifiantPolicier,(x,y),QuiL'aTué) : positionné en -1,-1 au début du jeu car pas sur le plateau
-:-assert(personnage(p1,nonPose,vivant)).
-:-assert(personnage(p2,nonPose,vivant)).
-:-assert(personnage(p3,nonPose,vivant)).
-:-assert(personnage(p4,nonPose,vivant)).
-:-assert(personnage(p5,nonPose,vivant)).
-:-assert(personnage(p6,nonPose,vivant)).
-:-assert(personnage(p7,nonPose,vivant)).
-:-assert(personnage(p8,nonPose,vivant)).
-
+:-assert(policier(p1,nonPose,vivant)).
+:-assert(policier(p2,nonPose,vivant)).
+:-assert(policier(p3,nonPose,vivant)).
+:-assert(policier(p4,nonPose,vivant)).
+:-assert(policier(p5,nonPose,vivant)).
+:-assert(policier(p6,nonPose,vivant)).
+:-assert(policier(p7,nonPose,vivant)).
+:-assert(policier(p8,nonPose,vivant)).
