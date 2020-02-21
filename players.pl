@@ -24,4 +24,4 @@ construireListeJoueur(Personnages, N) :-
 % Construit la liste de N joueurs à partire des personnages vivants.
 a_FaireJoueurs(N) :-
     findall(I, personnage(I,(_,_),vivant), Personnages),
-    construireListeJoueur(Personnages, N).
+    \+ construireListeJoueur(Personnages, N).
