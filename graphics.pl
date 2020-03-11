@@ -29,20 +29,39 @@ displCase(Pos, L) :-
     ;
         write('+----+')
     ) ,!
-    ;                       % } else {
+    ;                       % } else
         write('      ').
 
-test() :-
+displNumLigne(J, L) :-
+    ( L == 1,
+        format('~|~` t~d~3+', [ J ]), write('   ') ,!
+    ;
+        write('      ')
+    ).
+
+displNumColonnes() :-
+    write('      '),
     between(0, 5, I),
+        format('~|~` t~d~3+', [ I ]), write('   '),
+    fail.
+
+% verticalement : permière coordonnée (numéro colonne)
+d_Terrain() :-
+    \+ displNumColonnes(), nl,
+    between(0, 5, J),
         between(0, 3, L),
             nl,
-            between(0, 5, J),
+            displNumLigne(J, L),
+            between(0, 5, I),
                 displCase((I, J), L),
             fail,
         fail,
     fail.
 
-% terrLigne(N) :-
+da() :- d_Terrain().
 
-% d_Terrain() :-
-
+d_Detail(Pos) :-
+    case(Pos, _),
+    findall(I, (personnage(I,Pos,vivant), \+ policier(I)), Personnages),
+    write('Les personnages sur la case '), write(Pos), write(' sont :'), nl,
+    write(Personnages).
