@@ -91,7 +91,7 @@ displTerrain() :-
     fail.
 
 d_Terrain() :-
-    displTerrain().
+    \+ displTerrain().
 
 d_Detail(Pos) :-
     case(Pos, _),
