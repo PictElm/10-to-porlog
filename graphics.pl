@@ -3,10 +3,9 @@
 % | 42 |
 % +----+
 
-displCase(Pos, L) :-
-    case(Pos, EstSniper),   % if (il existe une case a Pos) {
-    ( L == 0,               %   if (L == 0) première ligne
-        write('+----+') ,!
+displCaseExist(Pos, L, EstSniper) :-
+    L == 0,               %   if (L == 0) première ligne
+        write('+----') ,!
     ; L == 1,               %   if (L == 1) ligne ?policier et ?sniper
         write('| '),
         ( personnage(Perso, Pos, vivant), policier(Perso),
@@ -19,40 +18,66 @@ displCase(Pos, L) :-
         ;
             write(' ')
         ),
-        write(' |') ,!
+        write(' ') ,!
     ; L == 2,               %   if (L == 2) ligne nombre de perso
         findall(I, (personnage(I,Pos,vivant), \+ policier(I)), Personnages),
         length(Personnages, Nombre),
         write('| '),
         format('~|~` t~d~2+', [ Nombre ]),
-        write(' |') ,!
-    ;
-        write('+----+')
-    ) ,!
+        write(' ').
+
+displCaseVide((X,Y), L) :-
+    X2 is X-1, Y2 is Y-1,
+    (
+        L == 0, (
+            case((X,Y2), _),
+            write('+----') ,!
+        ) ; (
+            case((X2,Y), _),
+                ( L == 0, write('+') ,!; write('|') ) ,!
+            ;
+                L == 0,case((X2,Y2), _), write('+') ,!; write('.')
+        ), write('....')
+    ).
+
+displCase(Pos, L) :-
+    case(Pos, EstSniper),   % if (il existe une case a Pos) {
+        displCaseExist(Pos, L, EstSniper) ,!
     ;                       % } else
-        write('      ').
+        displCaseVide(Pos, L).
 
 displNumLigne(J, L) :-
     ( L == 1,
-        format('~|~` t~d~3+', [ J ]), write('   ') ,!
+        format('~|~` t~d~3+', [ J ]), write('  ') ,!
     ;
-        write('      ')
+        write('     ')
     ).
 
-displNumColonnes() :-
-    write('      '),
-    between(0, 5, I),
-        format('~|~` t~d~3+', [ I ]), write('   '),
+displNumColonnes(N) :-
+    write('     '),
+    between(0, N, I),
+        format('~|~` t~d~3+', [ I ]), write('  '),
     fail.
+
+trouveTailleTerrain(MaxX, MaxY) :-
+    findall(X, case((X,_), _), ListX),
+    findall(Y, case((_,Y), _), ListY),
+    max_list(ListX, MaxX),
+    max_list(ListY, MaxY).
 
 % verticalement : permière coordonnée (numéro colonne)
 d_Terrain() :-
-    \+ displNumColonnes(), nl,
-    between(0, 5, J),
-        between(0, 3, L),
+    trouveTailleTerrain(MaxX, MaxY),
+    LimX is MaxX+1, LimY is MaxY+1,
+    write(MaxX), nl, write(MaxY), nl,
+
+    \+ displNumColonnes(MaxX), nl,
+
+    between(0, LimY, J),
+        between(0, 2, L),
             nl,
-            displNumLigne(J, L),
-            between(0, 5, I),
+            ( J == LimY, write('     ') ,!; displNumLigne(J, L) ),
+            between(0, LimX, I),
                 displCase((I, J), L),
             fail,
         fail,
