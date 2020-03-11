@@ -21,7 +21,11 @@ displCase(Pos, L) :-
         ),
         write(' |') ,!
     ; L == 2,               %   if (L == 2) ligne nombre de perso
-        write('|    |') ,!
+        findall(I, (personnage(I,Pos,vivant), \+ policier(I)), Personnages),
+        length(Personnages, Nombre),
+        write('| '),
+        format('~|~` t~d~2+', [ Nombre ]),
+        write(' |') ,!
     ;
         write('+----+')
     ) ,!
