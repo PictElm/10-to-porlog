@@ -25,3 +25,5 @@ construireListeJoueur(Personnages, N) :-
 a_FaireJoueurs(N) :-
     findall(I, personnage(I,(_,_),vivant), Personnages),
     \+ construireListeJoueur(Personnages, N).
+
+r_TousLesJoueurs(L) :- findall(joueur(X,[A,B,C]),joueur(X,[A,B,C]),L).
