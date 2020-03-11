@@ -25,7 +25,7 @@ displCase(Pos, L) :-
 test() :-
     between(0, 1, I),
         between(0, 3, L),
-            displCase((I, 3), L)
+            displCase((I, 3), L),
         fail,
         nl,
     fail.

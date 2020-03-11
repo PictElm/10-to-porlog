@@ -34,7 +34,7 @@ r_EtreAdjacent((X1,Y1),(X2,Y2)):-
     abs(Y1 - Y2, R2),
     1 is R1 + R2.
 
-r_ControlerIdentite(J,I) :- 
+r_ControlerIdentite(PI,I) :- 
     personnage(I,Pos,vivant),
     personnage(PI,Pos,vivant),
     policier(PI).
