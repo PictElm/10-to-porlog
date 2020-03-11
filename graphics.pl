@@ -9,7 +9,7 @@ displCase(Pos, L) :-
         write('+----+') ,!
     ; L == 1,               %   if (L == 1) ligne ?policier et ?sniper
         write('| '),
-        ( personnage(Perso, _, vivant), policier(Perso),
+        ( personnage(Perso, Pos, vivant), policier(Perso),
             write('P') ,!
         ;
             write(' ')
