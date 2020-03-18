@@ -22,7 +22,7 @@ construireListeJoueur(Personnages, N) :-
     construireListeJoueur(NouveauPersonnages, P).
 
 % Construit la liste de N joueurs à partire des personnages vivants.
-a_FaireJoueurs(N) :-
+a_CreerJoueurs(N) :-
     findall(I, personnage(I,(_,_),vivant), Personnages),
     \+ construireListeJoueur(Personnages, N).
 
