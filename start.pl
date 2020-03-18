@@ -132,7 +132,7 @@ b_LancementJeu :-
         (
             % Ce qui est inséré doit être un chiffre entier de 2 à 4 sinon on reboucle
             integer(Choix), Choix > 1, Choix < 5 -> c_CreationPartie(Choix), !;
-            Choix == 'q' -> !;
+            Choix == 'q' -> halt, !;
             g_ChoixNonExistant, fail
         ).
 
