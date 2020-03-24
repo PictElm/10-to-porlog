@@ -2,9 +2,93 @@
 :- dynamic policier/1.
 :- dynamic case/2.
 
+% ---- PARTIE GRAPHIQUE (questions, affichage des reponses, des choix etc) ----
+g_NettoieEcran :- nl,
+    write('\e[2J'),
+    g_Titre. % TODO: (pourquoi pas) avoir une liste global de prédicat a appeler quand l'ecran est nettoyer,
+             %                      ca permettrait de remettre instantanement les info actuellement relevants.
+
+g_NettoieEcranMaisAttendUnPeutQuandMeme :- nl,
+    write('Appuyer sur entrer pour effacer l\'ecran et continuer.'),
+    current_input(Stream), read_pending_codes(Stream, _, _), % vide le buffer du input stream (sinon ca override le get_char, wtf prolog)
+    get_char(_), % attend qu'on appuie sur 'enter'
+    current_input(Stream), read_pending_codes(Stream, _, _), % re-vide le buffer (si on a entrer d'autre charactères avant 'entrer') pour pas casser le pauvre interpreter qu'a l'air d'avoir deja bien du mal avec la catastrophe qu'est le language qu'on l'oblige a lire... btw ma touche 'a' commence a me lacher... et la '1' aussi...
+    g_NettoieEcran.
+
+g_Titre :- nl,
+    writeln('      -------------------------------- '),
+    writeln('     |       10 MINUTES TO KILL       |'),
+    writeln('     |       ~ A PROLOG GAME! ~       |'), 
+    writeln('      -------------------------------- ').
+
+g_QPourQuitter :- nl,
+    writeln('(q pour quitter)').
+
+g_QuestionNbJoueurs :- nl,
+    write('     Combien de joueurs vont participer (2 a 4 max) ?'),
+    g_QPourQuitter.
+
+g_QuestionChoisireCase :- nl,
+    write('     Choisissez une case (entrez X,Y)').
+
+g_Repondre(Choix) :- nl,
+    write('      --> Votre choix (avec un point a la fin) : '),
+    read(Choix).
+
+g_ChoixNonExistant :- nl,
+    writeln('     Erreur: ce choix n\'est pas disponible. Veuillez recommencer.').
+
+g_NbJoueurs(NbJoueurs) :- nl,
+    write('           ---- '), nl,
+    write('          | -> | Cette partie a '), write(NbJoueurs), writeln(' joueurs'),
+    write('           ---- '), nl.
+
+g_Joueurs(ListeJoueurs) :-
+    write('          Ces joueurs sont : '),
+    writeln(ListeJoueurs).
+
+g_DebutPartie :- nl, nl,   
+    writeln('      -------------------------------- '),
+    writeln('     |     QUE LA PARTIE COMMENCE !   |'),
+    writeln('      -------------------------------- '),
+    g_NettoieEcranMaisAttendUnPeutQuandMeme.
+
+g_JoueurEnCours(JoueurEnCours, N) :- nl,
+    write('          C\'est au tour de : '), write(JoueurEnCours), write(' (joueur no '), write(N), write(')').
+
+g_EtatAction(I) :- nl,
+    write('           --------------- '), nl,
+    write('          | Action no '), write(I), writeln('/2 |'),
+    write('           --------------- '), nl.
+
+g_QuestionActionSouhaitee :- nl,
+    writeln('     Que voulez-vous faire ?'), nl, nl,
+    writeln('          --> AGIR <--'), nl,
+    writeln('      ---                            ---'),
+    writeln('     | 1 | Deplacer un personnage   | 2 | Eliminer un personnage'),
+    writeln('      ---                            ---'), 
+    writeln('      ---  Controler l\'identite     '),
+    writeln('     | 3 |   d\'un personnage a      '),
+    writeln('      ---  l\'aide d\'un policier    '), nl, nl,
+    writeln('          --> ou CONSULTER <--'), nl,
+    writeln('      ---                            ---      Consulter les    '),
+    writeln('     | 4 | Voir le plateau          | 5 | personnages/policiers'),
+    writeln('      ---                            ---        vivants       '),
+    writeln('      ---                            '),
+    writeln('     | 6 | Se faire conseiller       '),
+    writeln('      ---                            ').
+
+g_PersonnagesVivant(ListePersonnages) :- nl,
+    writeln(ListePersonnages).
+
+g_PersonnagesSurCase(Pos, ListePersonnages) :- nl,
+    write('Les personnages sur la case '), write(Pos), write(' sont :'),
+    g_PersonnagesVivant(ListePersonnages).
+
+% ---- PARTIE PLATEAU ----
 % +----+
-% | Px |
-% | 42 |
+% | Px | -> 'P' si ya un policier, 'x' si c'est une case sniper
+% | 42 | -> nombre de personnages sur la case (policiers non comptes)
 % +----+
 
 displCaseExist(Pos, L, EstSniper) :-
@@ -54,14 +138,14 @@ displCase(Pos, L) :-
 % affiche les numéros sur le côté gauche
 displNumLigne(J, L) :-
     ( L == 1,
-        format('~|~` t~d~3+', [ J ]), write('  ') ,!
+        format('~|~` t~d~2+', [ J ]), write('   ') ,!
     ;
         write('     ')
     ).
 
 % affiche les numéros en haut
 displNumColonnes(N) :-
-    write('     '),
+    write('   Y '),
     between(0, N, I),
         format('~|~` t~d~3+', [ I ]), write('  '),
     fail.
@@ -79,12 +163,13 @@ displTerrain() :-
     % les limites sont +1 pour afficher le contours bas et droite des cases au bord bas droit du terrain
     LimX is MaxX+1, LimY is MaxY+1,
 
-    nl, \+ displNumColonnes(MaxX), nl,
+    nl, write('  '), \+ displNumColonnes(MaxX),
+    nl, write('  '), write(' X '),
 
     between(0, LimY, J),
         % scanlines (chaque case fait 3 lignes)
         between(0, 2, L),
-            nl,
+            nl, write('  '),
             % comme on va jusqu'a taille+1, on skip dès qu'on a atteint la limite
             ( J == LimY, write('     ') ,!; displNumLigne(J, L) ),
             between(0, LimX, I),
