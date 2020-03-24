@@ -2,19 +2,43 @@
 :- dynamic policier/1.
 :- dynamic case/2.
 
-% ---- PARTIE GRAPHIQUE (questions, affichage des reponses, des choix etc) ----
+% ---- PARTIE ECRANS AUTOMATIQUES (documenter c'est difficile) ----
+:- abolish(screenStack, 1).
+:- assert(screenStack([])).
+
+% ajoute un ecran a re-afficher automatiquement quand on fait appel a g_NettoieEcran[..]
+g_PushEcran(Elm) :-
+    screenStack(S1), append(S1, [Elm], S2),!, % S1.push(Elm) ; S2 <- S1
+    %write('@ push l\'ecran '), writeln(Elm),
+    retract(screenStack(S1)), assert(screenStack(S2)). % maj du stack en memoire
+
+% retire le dernier ecran ajouter au re-affichage automatique
+g_PopEcran(Elm) :-
+    screenStack(S1), append(S2, [Elm], S1),!, % Elm = S1.pop() ; S2 <- S1
+    %write('@ pop l\'ecran '), writeln(Elm),
+    retract(screenStack(S1)), assert(screenStack(S2)). % maj du stack en memoire
+
+g_AffichePileEcrans :- screenStack(S), \+ g_AffichePileEcrans(S).
+g_AffichePileEcrans([H|T]) :-
+    %write('@ affichage de '), writeln(H),
+    call(H), g_AffichePileEcrans(T).
+
 g_NettoieEcran :- nl,
     write('\e[2J'),
-    g_Titre. % TODO: (pourquoi pas) avoir une liste global de prédicat a appeler quand l'ecran est nettoyer,
-             %                      ca permettrait de remettre instantanement les info actuellement relevants.
+    screenStack(S),
+    length(S, N),
+    %write('@ '), write(N), writeln(' ecrans empiles'),
+    g_AffichePileEcrans.
 
 g_NettoieEcranMaisAttendUnPeutQuandMeme :- nl,
-    write('Appuyer sur entrer pour effacer l\'ecran et continuer.'),
+    write('Appuyer sur entrer pour continuer.'),
     current_input(Stream), read_pending_codes(Stream, _, _), % vide le buffer du input stream (sinon ca override le get_char, wtf prolog)
     get_char(_), % attend qu'on appuie sur 'enter'
     current_input(Stream), read_pending_codes(Stream, _, _), % re-vide le buffer (si on a entrer d'autre charactères avant 'entrer') pour pas casser le pauvre interpreter qu'a l'air d'avoir deja bien du mal avec la catastrophe qu'est le language qu'on l'oblige a lire... btw ma touche 'a' commence a me lacher... et la '1' aussi...
     g_NettoieEcran.
 
+
+% ---- PARTIE GRAPHIQUE (questions, affichage des reponses, des choix etc) ----
 g_Titre :- nl,
     writeln('      -------------------------------- '),
     writeln('     |       10 MINUTES TO KILL       |'),
@@ -50,8 +74,7 @@ g_Joueurs(ListeJoueurs) :-
 g_DebutPartie :- nl, nl,   
     writeln('      -------------------------------- '),
     writeln('     |     QUE LA PARTIE COMMENCE !   |'),
-    writeln('      -------------------------------- '),
-    g_NettoieEcranMaisAttendUnPeutQuandMeme.
+    writeln('      -------------------------------- ').
 
 g_JoueurEnCours(JoueurEnCours, N) :- nl,
     write('          C\'est au tour de : '), write(JoueurEnCours), write(' (joueur no '), write(N), write(')').
@@ -82,7 +105,10 @@ g_PersonnagesVivant(ListePersonnages) :- nl,
     writeln(ListePersonnages).
 
 g_PersonnagesSurCase(Pos, ListePersonnages) :- nl,
-    write('Les personnages sur la case '), write(Pos), write(' sont :'),
+    length(ListePersonnages, N),
+    (N == 1 , Pluriel = '' ,!; Pluriel = 's'),
+    write('Le'), write(Pluriel), write(' personnage'), write(Pluriel), write(' sur la case '), write(Pos),
+    (N == 1 , write(' est :') ,!; write(' sont :')),
     g_PersonnagesVivant(ListePersonnages).
 
 % ---- PARTIE PLATEAU ----
@@ -145,7 +171,7 @@ displNumLigne(J, L) :-
 
 % affiche les numéros en haut
 displNumColonnes(N) :-
-    write('   Y '),
+    write('   X '),
     between(0, N, I),
         format('~|~` t~d~3+', [ I ]), write('  '),
     fail.
@@ -164,7 +190,7 @@ displTerrain() :-
     LimX is MaxX+1, LimY is MaxY+1,
 
     nl, write('  '), \+ displNumColonnes(MaxX),
-    nl, write('  '), write(' X '),
+    nl, write('   Y '),
 
     between(0, LimY, J),
         % scanlines (chaque case fait 3 lignes)

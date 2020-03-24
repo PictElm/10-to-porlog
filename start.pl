@@ -28,9 +28,10 @@ c_ConsulterPersonnagesVivant :-
 
 c_VoirPlateau :-
     g_NettoieEcran,
-    b_VoirCasesPlateau.
+    \+ b_VoirCasesPlateau. % les c_.. doivent toujours renvoyer vrai, mais les boucles repeat..fail finissent toujours par faux (note : !=break)
 
-c_IA :- c_NotImplemented.
+c_IA :-
+    writeln('Un conseil ? Ne fait pas du Porlog !').
 
 c_CreationPartie(NbJoueurs):- 
     g_NbJoueurs(NbJoueurs),
@@ -40,22 +41,23 @@ c_CreationPartie(NbJoueurs):-
 % ---- BOUCLES DE CHOIX ----
 b_VoirCasesPlateau :-
     repeat,
-        g_Terrain,
         g_QuestionChoisireCase,
-        g_QPourQuitter, g_Repondre(Choix),
+        g_QPourQuitter,
+        g_Repondre(Choix),
         (
-            Choix == 'q' -> g_NettoieEcran, !, fail;
-            case(Choix, _) -> ( % détailler les personnage sur la case Choix
+            Choix == 'q' -> !;
+            case(Choix, _) -> (
                 findall(I, (personnage(I,Choix,vivant), \+ policier(I)), Personnages),
-                g_PersonnagesSurCase(Choix, Personnages)
+                g_PersonnagesSurCase(Choix, Personnages),
+                g_NettoieEcranMaisAttendUnPeutQuandMeme
             );
-            g_ChoixNonExistant, fail
+            g_ChoixNonExistant, g_NettoieEcranMaisAttendUnPeutQuandMeme
         ),
-        g_NettoieEcranMaisAttendUnPeutQuandMeme.
+    fail.
 
 b_ActionsPrincipales :- 
     repeat,
-        g_Terrain,
+        g_NettoieEcranMaisAttendUnPeutQuandMeme,
         g_QuestionActionSouhaitee,
         g_Repondre(Choix),
         (
@@ -66,9 +68,9 @@ b_ActionsPrincipales :-
             Choix == 4 -> c_VoirPlateau;
             Choix == 5 -> c_ConsulterPersonnagesVivant;
             Choix == 6 -> c_IA;
-            g_ChoixNonExistant, fail
+            g_ChoixNonExistant
         ),
-        g_NettoieEcranMaisAttendUnPeutQuandMeme.
+    fail.
 
 b_Partie :-
     r_TousLesJoueurs(ListeJoueurs),
@@ -76,15 +78,21 @@ b_Partie :-
     g_DebutPartie,
     repeat,
         nth0(N, ListeJoueurs, JoueurEnCours),
+        g_PushEcran(g_JoueurEnCours(JoueurEnCours, N)),
         between(1, 2, I),
-            g_JoueurEnCours(JoueurEnCours, N),
-            g_EtatAction(I),
+            g_PushEcran(g_EtatAction(I)),
+            g_PushEcran(g_Terrain),
             b_ActionsPrincipales,
-        fail.
-        %N is N+1 mod 3. % lol y en a pas besoin, et de toute facon il est jaja execute (rien n'est execute apres un 'fail , _') et en faite Prolog fait le cafe tout seul pasque nth0(N,_,_) vas trouver tout seul toutes les valeurs de N possible et grace au repeat il retry depuis N=0 après avoir fait tous les indices... big brain right hear!
+            g_PopEcran(_), % retire l'affichage du terrain
+            g_PopEcran(_), % retire l'affichage du compteur de tour précédent
+        I == 2, % (la suite n'est execute que si on arrive à I == 2)
+        g_PopEcran(_), % retire l'affichage du nom du joueur précédent
+    fail.
+        %N is N+1 mod 3. % lol y en a pas besoin, et de toute facon il est jaja execute (rien n'est execute apres un 'fail , _') et en fait Prolog fait le cafe tout seul pasque nth0(N,_,_) vas trouver tout seul toutes les valeurs de N possible et grace au repeat il retry depuis N=0 après avoir fait tous les indices... big brain right hear!
         
 b_LancementJeu :-
     prompt(_,''), % pour enlever le '|:' dégeulasse de prolog
+    g_PushEcran(g_Titre),
     g_NettoieEcran,
     repeat,
         g_QuestionNbJoueurs,
@@ -96,4 +104,5 @@ b_LancementJeu :-
             g_ChoixNonExistant, fail
         ).
 
-:-b_LancementJeu.
+:- %guitracer, trace,
+    b_LancementJeu.
