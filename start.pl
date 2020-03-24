@@ -22,8 +22,9 @@ g_NettoieEcran :- nl,
 
 g_NettoieEcranMaisAttendUnPeutQuandMeme :- nl,
     write('Appuyer sur entrer pour effacer l\'ecran et continuer.'),
-    current_input(Stream), read_pending_codes(Stream, _, _), % vide le buffer du input stream (wtf prolog)
-    get_char(_),
+    current_input(Stream), read_pending_codes(Stream, _, _), % vide le buffer du input stream (sinon ca override le get_char, wtf prolog)
+    get_char(_), % attend qu'on appuie sur 'enter'
+    current_input(Stream), read_pending_codes(Stream, _, _), % re-vide le buffer (si on a entrer d'autre charactères avant 'entrer') pour pas casser le pauvre interpreter qu'a l'air d'avoir deja bien du mal avec la catastrophe qu'est le language qu'on l'oblige a lire... btw ma touche 'a' commence a me lacher... et la '1' aussi...
     g_NettoieEcran.
 
 g_Titre :- nl,
@@ -43,9 +44,8 @@ g_QuestionChoisireCase :- nl,
     write('     Choisissez une case (entrez X,Y)').
 
 g_Repondre(Choix) :- nl,
-    write('      --> Votre choix : '),
-    read(Choix)
-    .%,Choix \== tg ; write('\e[2J') , halt. % si on entre 'tg', bah ca quit (marre que swipl crash à chaque fois !)
+    write('      --> Votre choix (avec un point a la fin) : '),
+    read(Choix).
 
 g_ChoixNonExistant :- nl,
     writeln('     Erreur: ce choix n\'est pas disponible. Veuillez recommencer.').
@@ -65,8 +65,8 @@ g_DebutPartie :- nl, nl,
     writeln('      -------------------------------- '),
     g_NettoieEcranMaisAttendUnPeutQuandMeme.
 
-g_JoueurEnCours(JoueurEnCours) :- nl,
-    write('          C\'est au tour de : '), writeln(JoueurEnCours).
+g_JoueurEnCours(JoueurEnCours, N) :- nl,
+    write('          C\'est au tour de : '), write(JoueurEnCours), write(' (joueur no '), write(N), write(')').
 
 g_EtatAction(I) :- nl,
     write('           --------------- '), nl,
@@ -162,11 +162,11 @@ b_Partie :-
     repeat,
         nth0(N, ListeJoueurs, JoueurEnCours),
         between(1, 2, I),
-            g_JoueurEnCours(JoueurEnCours),
+            g_JoueurEnCours(JoueurEnCours, N),
             g_EtatAction(I),
             b_ActionsPrincipales,
-        fail,
-        N is N+1 mod 3.
+        fail.
+        %N is N+1 mod 3. % lol y en a pas besoin, et de toute facon il est jaja execute (rien n'est executer après un 'fail , _') et en faite Prolog fait le cafe tout seul pasque nth0(N,_,_) vas trouver tout seul toutes les valeurs de N possible et grace au repeat il retry depuis N=0 après avoir fait tous les indices... big brain right hear!
         
 b_LancementJeu :-
     prompt(_,''), % pour enlever le '|:' dégeulasse de prolog
@@ -177,7 +177,7 @@ b_LancementJeu :-
         (
             % Ce qui est inséré doit être un chiffre entier de 2 à 4 sinon on reboucle
             integer(Choix), Choix > 1, Choix < 5 -> c_CreationPartie(Choix), !;
-            Choix == 'q' -> halt, !;
+            Choix == 'q' -> halt;
             g_ChoixNonExistant, fail
         ).
 
