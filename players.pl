@@ -1,5 +1,6 @@
 :- abolish(joueur, 2).
 
+:- dynamic personnage/3.
 :- dynamic joueur/2.
 
 % Retire un element aléatoire de List1, l'associe à Elm, et List2 est List1 sans Elm.

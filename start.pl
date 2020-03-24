@@ -1,5 +1,5 @@
-:- consult('players.pl').
 :- consult('board.pl').
+:- consult('players.pl').
 :- consult('game.pl').
 :- consult('graphics.pl').
 
@@ -15,17 +15,34 @@
 %   r : recherche
 
 % ---- PARTIE GRAPHIQUE (questions, affichage des reponses, des choix etc) ----
-g_Titre :- nl, 
+g_NettoieEcran :- nl,
+    write('\e[2J'),
+    g_Titre.
+
+g_NettoieEcranMaisAttendUnPeutQuandMeme :- nl,
+    write('Appuyer sur entrer pour effacer l\'ecran et continuer.'),
+    get_code(_),
+    g_NettoieEcran.
+
+g_Titre :- nl,
     writeln('      -------------------------------- '),
     writeln('     |       10 MINUTES TO KILL       |'),
     writeln('     |       ~ A PROLOG GAME! ~       |'), 
     writeln('      -------------------------------- ').
 
-g_QuestionNbJoueurs :- nl, 
-    writeln('     Combien de joueurs vont participer (2 a 4 max) ? (q pour quitter)').
+g_QPourQuitter :- nl,
+    writeln('(q pour quitter)').
 
-g_Repondre :- nl, 
-    write('      --> Votre choix : ').
+g_QuestionNbJoueurs :- nl,
+    write('     Combien de joueurs vont participer (2 a 4 max) ?'),
+    g_QPourQuitter.
+
+g_QuestionChoisireCase :- nl,
+    write('     Choisissez une case (entrez X,Y)').
+
+g_Repondre(Choix) :- nl,
+    write('      --> Votre choix : '),
+    read(Choix).
 
 g_ChoixNonExistant :- nl,
     writeln('     Erreur: ce choix n\'est pas disponible. Veuillez recommencer.').
@@ -72,6 +89,10 @@ g_QuestionActionSouhaitee :- nl,
 g_PersonnagesVivant(ListePersonnages) :- nl,
     writeln(ListePersonnages).
 
+g_PersonnagesSurCase(Pos, ListePersonnages) :- nl,
+    write('Les personnages sur la case '), write(Pos), write(' sont :'),
+    g_PersonnagesVivant(ListePersonnages).
+
 % ---- CHOIX PRIT PAR L'UTILISATEUR ----
 % Un choix correspond en général à une action (a_...) et/ou recherche (r_...) suivi d'une phrase ou d'un élément graphique (g_...)
 
@@ -86,7 +107,20 @@ c_ConsulterPersonnagesVivant :-
     findall((I,Pos), personnage(I,Pos,vivant), ListePersonnages),
     g_PersonnagesVivant(ListePersonnages).
 
-c_VoirPlateau :- c_NotImplemented.
+c_VoirPlateau :-
+    g_Terrain,
+    repeat,
+        g_QuestionChoisireCase, g_QPourQuitter,
+        g_Repondre(Choix),
+        (
+            Choix == 'q' -> !, fail;
+            case(Choix, _) -> ( % détailler les personnage sur la case Choix
+                findall(I, (personnage(I,Choix,vivant), \+ policier(I)), Personnages),
+                g_PersonnagesSurCase(Choix, Personnages)
+            );
+            g_ChoixNonExistant, fail
+        ).
+
 c_IA :- c_NotImplemented.
 
 c_CreationPartie(NbJoueurs):- 
@@ -96,23 +130,23 @@ c_CreationPartie(NbJoueurs):-
 
 % ---- BOUCLES DE CHOIX ----
 b_ActionsPrincipales :- 
-    g_QuestionActionSouhaitee,
     repeat,
-        g_Repondre, 
-        read(Choix),
+        g_NettoieEcranMaisAttendUnPeutQuandMeme,
+        g_QuestionActionSouhaitee,
+        g_Repondre(Choix),
         (
             Choix == 1 -> c_Deplacer, !;
             Choix == 2 -> c_Eliminer, !;
             Choix == 3 -> c_Controler, !;
-            Choix == 4 -> c_ConsulterPersonnagesVivant;
-            Choix == 5 -> c_VoirPlateau;
+            Choix == 4 -> c_VoirPlateau;
+            Choix == 5 -> c_ConsulterPersonnagesVivant;
             Choix == 6 -> c_IA;
             g_ChoixNonExistant, fail
         ).
 
-b_Partie :- 
+b_Partie :-
     r_TousLesJoueurs(ListeJoueurs),
-    g_Joueurs(ListeJoueurs), 
+    g_Joueurs(ListeJoueurs),
     g_DebutPartie,
     repeat,
         nth0(N, ListeJoueurs, JoueurEnCours),
@@ -121,14 +155,14 @@ b_Partie :-
             g_EtatAction(I),
             b_ActionsPrincipales,
         fail,
-        N is N+1 mod 3. 
+        N is N+1 mod 3.
         
-b_LancementJeu :- 
+b_LancementJeu :-
+    g_NettoieEcran,
     g_Titre,
     repeat,
         g_QuestionNbJoueurs,
-        g_Repondre, 
-        read(Choix),
+        g_Repondre(Choix),
         (
             % Ce qui est inséré doit être un chiffre entier de 2 à 4 sinon on reboucle
             integer(Choix), Choix > 1, Choix < 5 -> c_CreationPartie(Choix), !;

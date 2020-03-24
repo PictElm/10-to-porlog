@@ -1,5 +1,6 @@
-% :- dynamic personnage/3.
-% :- dynamic case/2.
+:- dynamic personnage/3.
+:- dynamic policier/1.
+:- dynamic case/2.
 
 % Nomenclature :
 % I = index d'un personnage

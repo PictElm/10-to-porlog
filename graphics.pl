@@ -1,3 +1,7 @@
+:- dynamic personnage/3.
+:- dynamic policier/1.
+:- dynamic case/2.
+
 % +----+
 % | Px |
 % | 42 |
@@ -74,9 +78,8 @@ displTerrain() :-
 
     % les limites sont +1 pour afficher le contours bas et droite des cases au bord bas droit du terrain
     LimX is MaxX+1, LimY is MaxY+1,
-    write(MaxX), nl, write(MaxY), nl,
 
-    \+ displNumColonnes(MaxX), nl,
+    nl, \+ displNumColonnes(MaxX), nl,
 
     between(0, LimY, J),
         % scanlines (chaque case fait 3 lignes)
@@ -86,15 +89,9 @@ displTerrain() :-
             ( J == LimY, write('     ') ,!; displNumLigne(J, L) ),
             between(0, LimX, I),
                 displCase((I, J), L),
-            fail,
-        fail,
-    fail.
+            I == LimX,
+        L == 2,
+    J == LimY.
 
-d_Terrain() :-
-    \+ displTerrain().
-
-d_Detail(Pos) :-
-    case(Pos, _),
-    findall(I, (personnage(I,Pos,vivant), \+ policier(I)), Personnages),
-    write('Les personnages sur la case '), write(Pos), write(' sont :'), nl,
-    write(Personnages).
+g_Terrain :-
+    \+ displTerrain(), nl.
