@@ -44,7 +44,7 @@ b_VoirCasesPlateau :-
         g_QuestionChoisireCase,
         g_QPourQuitter, g_Repondre(Choix),
         (
-            Choix == 'q' -> !, fail;
+            Choix == 'q' -> g_NettoieEcran, !, fail;
             case(Choix, _) -> ( % détailler les personnage sur la case Choix
                 findall(I, (personnage(I,Choix,vivant), \+ policier(I)), Personnages),
                 g_PersonnagesSurCase(Choix, Personnages)
