@@ -17,11 +17,13 @@
 % ---- PARTIE GRAPHIQUE (questions, affichage des reponses, des choix etc) ----
 g_NettoieEcran :- nl,
     write('\e[2J'),
-    g_Titre.
+    g_Titre. % TODO: (pourquoi pas) avoir une liste global de prédicat a appeler quand l'ecran est nettoyer,
+             %                      ca permettrait de remettre instantanement les info actuellement relevants.
 
 g_NettoieEcranMaisAttendUnPeutQuandMeme :- nl,
     write('Appuyer sur entrer pour effacer l\'ecran et continuer.'),
-    get_code(_),
+    current_input(Stream), read_pending_codes(Stream, _, _), % vide le buffer du input stream (wtf prolog)
+    get_char(_),
     g_NettoieEcran.
 
 g_Titre :- nl,
@@ -42,7 +44,8 @@ g_QuestionChoisireCase :- nl,
 
 g_Repondre(Choix) :- nl,
     write('      --> Votre choix : '),
-    read(Choix).
+    read(Choix)
+    .%,Choix \== tg ; write('\e[2J') , halt. % si on entre 'tg', bah ca quit (marre que swipl crash à chaque fois !)
 
 g_ChoixNonExistant :- nl,
     writeln('     Erreur: ce choix n\'est pas disponible. Veuillez recommencer.').
@@ -59,7 +62,8 @@ g_Joueurs(ListeJoueurs) :-
 g_DebutPartie :- nl, nl,   
     writeln('      -------------------------------- '),
     writeln('     |     QUE LA PARTIE COMMENCE !   |'),
-    writeln('      -------------------------------- ').
+    writeln('      -------------------------------- '),
+    g_NettoieEcranMaisAttendUnPeutQuandMeme.
 
 g_JoueurEnCours(JoueurEnCours) :- nl,
     write('          C\'est au tour de : '), writeln(JoueurEnCours).
@@ -108,18 +112,8 @@ c_ConsulterPersonnagesVivant :-
     g_PersonnagesVivant(ListePersonnages).
 
 c_VoirPlateau :-
-    g_Terrain,
-    repeat,
-        g_QuestionChoisireCase, g_QPourQuitter,
-        g_Repondre(Choix),
-        (
-            Choix == 'q' -> !, fail;
-            case(Choix, _) -> ( % détailler les personnage sur la case Choix
-                findall(I, (personnage(I,Choix,vivant), \+ policier(I)), Personnages),
-                g_PersonnagesSurCase(Choix, Personnages)
-            );
-            g_ChoixNonExistant, fail
-        ).
+    g_NettoieEcran,
+    b_VoirCasesPlateau.
 
 c_IA :- c_NotImplemented.
 
@@ -129,12 +123,28 @@ c_CreationPartie(NbJoueurs):-
     b_Partie.
 
 % ---- BOUCLES DE CHOIX ----
+b_VoirCasesPlateau :-
+    repeat,
+        g_Terrain,
+        g_QuestionChoisireCase,
+        g_QPourQuitter, g_Repondre(Choix),
+        (
+            Choix == 'q' -> !, fail;
+            case(Choix, _) -> ( % détailler les personnage sur la case Choix
+                findall(I, (personnage(I,Choix,vivant), \+ policier(I)), Personnages),
+                g_PersonnagesSurCase(Choix, Personnages)
+            );
+            g_ChoixNonExistant, fail
+        ),
+        g_NettoieEcranMaisAttendUnPeutQuandMeme.
+
 b_ActionsPrincipales :- 
     repeat,
-        g_NettoieEcranMaisAttendUnPeutQuandMeme,
+        g_Terrain,
         g_QuestionActionSouhaitee,
         g_Repondre(Choix),
         (
+            Choix == exit -> halt;
             Choix == 1 -> c_Deplacer, !;
             Choix == 2 -> c_Eliminer, !;
             Choix == 3 -> c_Controler, !;
@@ -142,7 +152,8 @@ b_ActionsPrincipales :-
             Choix == 5 -> c_ConsulterPersonnagesVivant;
             Choix == 6 -> c_IA;
             g_ChoixNonExistant, fail
-        ).
+        ),
+        g_NettoieEcranMaisAttendUnPeutQuandMeme.
 
 b_Partie :-
     r_TousLesJoueurs(ListeJoueurs),
@@ -150,16 +161,16 @@ b_Partie :-
     g_DebutPartie,
     repeat,
         nth0(N, ListeJoueurs, JoueurEnCours),
-        g_JoueurEnCours(JoueurEnCours),
         between(1, 2, I),
+            g_JoueurEnCours(JoueurEnCours),
             g_EtatAction(I),
             b_ActionsPrincipales,
         fail,
         N is N+1 mod 3.
         
 b_LancementJeu :-
+    prompt(_,''), % pour enlever le '|:' dégeulasse de prolog
     g_NettoieEcran,
-    g_Titre,
     repeat,
         g_QuestionNbJoueurs,
         g_Repondre(Choix),
