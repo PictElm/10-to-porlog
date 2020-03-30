@@ -20,22 +20,36 @@ c_NotImplemented :- nl,
 
 c_Deplacer :- nl,
     repeat,
-        writeln('Quel personnage déplacer ? : (entrer le nom du personnage)'),
+        writeln('Quel personnage deplacer ? : (entrer le nom du personnage)'),
         g_Repondre(Pers),
         (
-            personnage(Pers,Pos,vivant) -> nl, write('Vous avez choisi de déplacer "'),write(Pers),write('" qui est en position : '), write(Pos),nl,nl, !;
+            personnage(Pers,Pos,vivant) -> nl, write('Vous avez choisi de deplacer "'),write(Pers),write('" qui est en position : '), write(Pos),nl,nl, !;
             g_ChoixNonExistant
         ),
     repeat,
-    writeln('A quelle position le déplacer ? : (entrer la position sous forme (X,Y))'),
+    writeln('A quelle position deplacer '),write(Pers),write(' ? : (entrer la position sous forme (X,Y))'),
         g_Repondre(Position),
         (
-            a_Deplacer(Pers,Position) -> nl, write('vous avez choisi de déplacer "'),write(Pers),write('" qui est en position : '), write(Pos),write(' à la position position : '), write(Position),nl, !;
+            a_Deplacer(Pers,Position) -> nl, write('Vous avez choisi de déplacer "'),write(Pers),write('" qui est en position : '), write(Pos),write(' a la position position : '), write(Position),nl, !;
             g_ChoixNonExistant
         ),
     fail.
 
-c_Eliminer :- c_NotImplemented.
+c_Eliminer(joueur(Tueur,_)) :- 
+    nl,
+    repeat,
+    writeln('Quel personnage tuer ? : (entrer le nom du personnage)'),
+        g_Repondre(Victime),
+        (
+            a_Tuer(Tueur,Victime) -> nl, write('Le personnage "'),write(Victime),write('" est mort.'),nl, !;
+            g_ChoixNonExistant
+        ),
+    fail.
+
+f_TueurVivant(joueur(Tueur,_)) :-
+    \+ personnage(Tueur,_,vivant),
+    write('Votre tueur à gage est mort, impossible de faire plus de victimes...').
+
 c_Controler :- c_NotImplemented.
 
 c_ConsulterPersonnagesVivant :- 
@@ -71,15 +85,15 @@ b_VoirCasesPlateau :-
         ),
     fail.
 
-b_ActionsPrincipales :- 
+b_ActionsPrincipales(JoueurEnCours) :- 
     repeat,
         g_NettoieEcranMaisAttendUnPeutQuandMeme,
-        g_QuestionActionSouhaitee,
+        g_QuestionActionSouhaitee(JoueurEnCours),
         g_Repondre(Choix),
         (
             Choix == exit -> halt;
             Choix == 1 -> c_Deplacer, !;
-            Choix == 2 -> c_Eliminer, !;
+            Choix == 2, \+ f_TueurVivant(JoueurEnCours) -> c_Eliminer(JoueurEnCours), !;
             Choix == 3 -> c_Controler, !;
             Choix == 4 -> c_VoirPlateau;
             Choix == 5 -> c_ConsulterPersonnagesVivant;
@@ -98,7 +112,7 @@ b_Partie :-
         between(1, 2, I),
             g_PushEcran(g_EtatAction(I)),
             g_PushEcran(g_Terrain),
-            b_ActionsPrincipales,
+            b_ActionsPrincipales(JoueurEnCours),
             g_PopEcran(_), % retire l'affichage du terrain
             g_PopEcran(_), % retire l'affichage du compteur de tour précédent
         I == 2, % (la suite n'est execute que si on arrive à I == 2)

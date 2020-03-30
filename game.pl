@@ -47,7 +47,7 @@ r_Tuer(I1, I2) :-
     personnage(I2, (X2,Y2), vivant),
     (
         % par couteau
-        (X1,Y1) == (X2,Y2), !
+        (X1,Y1) == (X2,Y2), ! % Attention la le suicide est authorise
         ;
         % par pistolet
         r_EtreAdjacent((X1,Y1), (X2,Y2)), !
@@ -57,7 +57,15 @@ r_Tuer(I1, I2) :-
         (X1 == X2 ; Y1 == Y2), !
     ).
 
+r_PlacerPolicier(I2) :-
+    personnage(I2,(X,Y),_),
+    personnage(Policier,nonPose,vivant), % Si certains policiers ne sont pas encore sur le plateau
+    retractall(personnage(Policier,_,vivant)),
+    assert(personnage(Policier,(X,Y),vivant)),! ;
+    true. % Si tous les policiers ont été placés, on ne fait rien
+
 a_Tuer(I1, I2) :-
     r_Tuer(I1, I2),
+    r_PlacerPolicier(I2),  % on rajoute un policier sur la case s'il en reste en reserve
     retractall(personnage(I2,_,vivant)),
     assert(personnage(I2,_,I1)).
