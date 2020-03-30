@@ -18,16 +18,23 @@
 c_NotImplemented :- nl,
     writeln('NOT IMPLEMENTED YET').
 
-c_Deplacer :- nl,
+f_Deplacable(Pers, Pos) :- nl,
     repeat,
-        writeln('Quel personnage deplacer ? : (entrer le nom du personnage)'),
+        writeln('Quel personnage deplacer ? : (entrer le nom du personnage / q pour quitter)'),
         g_Repondre(Pers),
         (
-            personnage(Pers,Pos,vivant) -> nl, write('Vous avez choisi de deplacer "'),write(Pers),write('" qui est en position : '), write(Pos),nl,nl, !;
+            personnage(Pers,Pos,Vie), Vie=vivant -> nl, write('Vous avez choisi de deplacer "'),write(Pers),write('" qui est en position : '), write(Pos),nl,nl, !;
+            Pers = q -> nl, writeln('  Retour au menu  '), !;
             g_ChoixNonExistant
         ),
-    repeat,
-    writeln('A quelle position deplacer '),write(Pers),write(' ? : (entrer la position sous forme (X,Y))'),
+    \+ fail,
+    Pers \= q,
+    personnage(Pers,_,Vie),
+    Vie=vivant.
+    
+c_Deplacer(Pers, Pos) :- nl,
+repeat,
+    write('A quelle position deplacer '),write(Pers),write(' ? : (entrer la position sous forme (X,Y))'),nl,
         g_Repondre(Position),
         (
             a_Deplacer(Pers,Position) -> nl, write('Vous avez choisi de déplacer "'),write(Pers),write('" qui est en position : '), write(Pos),write(' a la position position : '), write(Position),nl, !;
@@ -94,7 +101,7 @@ b_ActionsPrincipales(JoueurEnCours) :-
         g_Repondre(Choix),
         (
             Choix == exit -> halt;
-            Choix == 1 -> c_Deplacer, !;
+            Choix == 1, f_Deplacable(Pers, Pos) -> c_Deplacer(Pers, Pos), !;
             Choix == 2, \+ f_TueurIncapable(JoueurEnCours) -> c_Eliminer(JoueurEnCours), !;
             Choix == 3 -> c_Controler, !;
             Choix == 4 -> c_VoirPlateau;
@@ -137,4 +144,4 @@ b_LancementJeu :-
         ).
 
 :- %guitracer, trace,
-    b_LancementJeu.
+   b_LancementJeu.

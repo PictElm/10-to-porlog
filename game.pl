@@ -91,7 +91,7 @@ r_PlacerPolicier(I2) :-
     personnage(I2,(X,Y),_),
     personnage(Policier,nonPose,vivant), % Si certains policiers ne sont pas encore sur le plateau
     retractall(personnage(Policier,_,vivant)),
-    assert(personnage(Policier,(X,Y),vivant)),! ;
+    assert(personnage(Policier,(X,Y),vivant)),true, ! ;
     true. % Si tous les policiers ont été placés, on ne fait rien
 
 a_Tuer(I1, I2) :-
