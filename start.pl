@@ -33,8 +33,8 @@ f_Deplacable(Pers, Pos) :- nl,
     Vie=vivant.
     
 c_Deplacer(Pers, Pos) :- nl,
-repeat,
-    write('A quelle position deplacer '),write(Pers),write(' ? : (entrer la position sous forme (X,Y))'),nl,
+    repeat,
+        write('A quelle position deplacer '),write(Pers),write(' ? : (entrer la position sous forme (X,Y))'),nl,
         g_Repondre(Position),
         (
             a_Deplacer(Pers,Position) -> nl, write('Vous avez choisi de déplacer "'),write(Pers),write('" qui est en position : '), write(Pos),write(' a la position position : '), write(Position),nl, !;
@@ -96,7 +96,8 @@ b_VoirCasesPlateau :-
 
 b_ActionsPrincipales(JoueurEnCours) :- 
     repeat,
-        g_NettoieEcranMaisAttendUnPeutQuandMeme,
+        % g_NettoieEcranMaisAttendUnPeutQuandMeme,
+        g_NettoieEcran,
         g_QuestionActionSouhaitee(JoueurEnCours),
         g_Repondre(Choix),
         (
@@ -120,6 +121,7 @@ b_Partie :-
         g_PushEcran(g_JoueurEnCours(JoueurEnCours, N)),
         between(1, 2, I),
             g_PushEcran(g_EtatAction(I)),
+            write('1C est au tour de I : '), writeln(I),
             g_PushEcran(g_Terrain),
             b_ActionsPrincipales(JoueurEnCours),
             g_PopEcran(_), % retire l'affichage du terrain
