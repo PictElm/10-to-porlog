@@ -57,6 +57,24 @@ r_Tuer(I1, I2) :-
         (X1 == X2 ; Y1 == Y2), !
     ).
 
+r_Tuable(I1, I2) :-
+    personnage(I1, (X1,Y1), vivant),
+    \+ policier(I1),
+    personnage(I2, (X2,Y2), vivant),
+    (
+        % par couteau
+        (X1,Y1) == (X2,Y2), I1\=I2
+        ;
+        % par sniper
+        case((X1,Y1), true),
+        (X1,Y1) \= (X2,Y2),
+        (X1 == X2 ; Y1 == Y2)
+        ;
+        % par pistolet
+        \+ case((X1,Y1), true), % les cases snipers sont forcément adjacentes donc fin de la recherche
+        r_EtreAdjacent((X1,Y1), (X2,Y2))
+    ).
+
 r_PlacerPolicier(I2) :-
     personnage(I2,(X,Y),_),
     personnage(Policier,nonPose,vivant), % Si certains policiers ne sont pas encore sur le plateau

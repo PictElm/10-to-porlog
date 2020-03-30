@@ -46,9 +46,11 @@ c_Eliminer(joueur(Tueur,_)) :-
         ),
     fail.
 
-f_TueurVivant(joueur(Tueur,_)) :-
-    \+ personnage(Tueur,_,vivant),
-    write('Votre tueur à gage est mort, impossible de faire plus de victimes...').
+f_TueurIncapable(joueur(Tueur,_)) :-
+    \+ personnage(Tueur,_,vivant), write('Votre tueur a gage est mort donc plus de bain de sang possible'),!;
+    \+ r_Tuable(Tueur,_),
+    write('La position de votre tueur a gage ne vous permet pas de tuer quelqu\'un ...'),!;
+    false.
 
 c_Controler :- c_NotImplemented.
 
@@ -93,7 +95,7 @@ b_ActionsPrincipales(JoueurEnCours) :-
         (
             Choix == exit -> halt;
             Choix == 1 -> c_Deplacer, !;
-            Choix == 2, \+ f_TueurVivant(JoueurEnCours) -> c_Eliminer(JoueurEnCours), !;
+            Choix == 2, \+ f_TueurIncapable(JoueurEnCours) -> c_Eliminer(JoueurEnCours), !;
             Choix == 3 -> c_Controler, !;
             Choix == 4 -> c_VoirPlateau;
             Choix == 5 -> c_ConsulterPersonnagesVivant;
