@@ -5,7 +5,7 @@
 
 % Pour plus de clarté, ce document se lit de bas en haut (en partant de la boucle de lancement du jeu) ((pas tjr, dsl, rip, mybad -- Sel))
 % Le programme/jeu débute par le menu et est constitué de plusieurs tours (correspondant au tour d'un autre joueur).
-% Chaque joueur peut effectuer 2 actions, sauf s'il décide d'éléminer quelqu'un (correspondant à 2 actions d'un coup)
+% Chaque joueur peut effectuer 2 actions, sauf s'il décide d'éliminer quelqu'un (correspondant à 2 actions d'un coup)
 
 % Nomenclature :
 %   b : boucle
@@ -18,7 +18,23 @@
 c_NotImplemented :- nl,
     writeln('NOT IMPLEMENTED YET').
 
-c_Deplacer :- c_NotImplemented.
+c_Deplacer :- nl,
+    repeat,
+        writeln('Quel personnage déplacer ? : (entrer le nom du personnage)'),
+        g_Repondre(Pers),
+        (
+            personnage(Pers,Pos,vivant) -> nl, write('Vous avez choisi de déplacer "'),write(Pers),write('" qui est en position : '), write(Pos),nl,nl, !;
+            g_ChoixNonExistant
+        ),
+    repeat,
+    writeln('A quelle position le déplacer ? : (entrer la position sous forme (X,Y))'),
+        g_Repondre(Position),
+        (
+            a_Deplacer(Pers,Position) -> nl, write('vous avez choisi de déplacer "'),write(Pers),write('" qui est en position : '), write(Pos),write(' à la position position : '), write(Position),nl, !;
+            g_ChoixNonExistant
+        ),
+    fail.
+
 c_Eliminer :- c_NotImplemented.
 c_Controler :- c_NotImplemented.
 
