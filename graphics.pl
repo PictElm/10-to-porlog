@@ -46,12 +46,18 @@ g_Titre :- nl,
 g_QPourQuitter :- nl,
     writeln('(q pour quitter)').
 
+g_RetourAuMenu :- nl,
+    writeln('  Retour au menu  ').
+
 g_QuestionNbJoueurs :- nl,
     write('     Combien de joueurs vont participer (2 a 4 max) ?'),
     g_QPourQuitter.
 
 g_QuestionChoisireCase :- nl,
     write('     Choisissez une case (entrez X,Y)').
+
+g_QuestionChoisirePersonnage :- nl,
+    write('     Entrer le nom d\'un personnage').
 
 g_Repondre(Choix) :- nl,
     write('      --> Votre choix (avec un point a la fin) : '),
@@ -125,6 +131,21 @@ g_PersonnagesSurCase(Pos, ListePersonnages) :- nl,
     write('Le'), write(Pluriel), write(' personnage'), write(Pluriel), write(' sur la case '), write(Pos),
     (N == 1 , write(' est :') ,!; write(' sont :')),
     g_PersonnagesVivant(ListePersonnages).
+
+g_VousAvezChoisiDeplacer(Pers, Pos) :- nl,
+    write('     Vous avez choisi de deplacer "'), write(Pers),
+    write('" qui est en position : '), writeln(Pos).
+
+g_PersoSeDeplacerEn(Pers, Pos, Position) :- nl,
+    write('     Le prsonnage "'), write(Pers),
+    write('" se deplace de '), write(Pos),
+    write(' jusqu\'en '), writeln(Position).
+
+g_PositionPermetPasTuer(Victime) :- nl,
+    write('     La position de votre tueur a gage ne vous permet pas de tuer '), write(Victime), writeln('...').
+
+g_PersonnageEstMort(Victime) :- nl,
+    write('     Le personnage "'), write(Victime), writeln('" est mort.').
 
 % ---- PARTIE PLATEAU ----
 % +----+

@@ -19,15 +19,17 @@ c_NotImplemented :- nl,
     writeln('NOT IMPLEMENTED YET').
 
 f_Deplacable(Pers, Pos) :- nl,
+    g_NettoieEcran,
     repeat,
-        writeln('Quel personnage deplacer ? : (entrer le nom du personnage / q pour quitter)'),
+        nl, write('Quel personnage deplacer ?'),
+        g_QuestionChoisirePersonnage,
+        g_QPourQuitter,
         g_Repondre(Pers),
         (
-            personnage(Pers,Pos,Vie), Vie=vivant -> nl, write('Vous avez choisi de deplacer "'),write(Pers),write('" qui est en position : '), write(Pos),nl,nl, !;
-            Pers = q -> nl, writeln('  Retour au menu  '), !;
-            g_ChoixNonExistant
+            personnage(Pers,Pos,Vie), Vie=vivant -> g_PushEcran(g_VousAvezChoisiDeplacer(Pers, Pos)), !;
+            Pers = q -> g_RetourAuMenu, !;
+            g_ChoixNonExistant, g_NettoieEcranMaisAttendUnPeutQuandMeme
         ),
-    \+ fail,
     Pers \= q,
     personnage(Pers,_,Vie),
     Vie=vivant.
@@ -37,12 +39,16 @@ c_Deplacer :- nl,
     \+ b_ActionDepacer(Pers, Pos).
 
 b_ActionDepacer(Pers, Pos) :-
+    g_NettoieEcran,
     repeat,
-        write('A quelle position deplacer '),write(Pers),write(' ? : (entrer la position sous forme (X,Y))'),nl,
+        nl, write('A quelle position deplacer '), write(Pers),
+        g_QuestionChoisireCase,
+        nl,
         g_Repondre(Position),
         (
-            a_Deplacer(Pers,Position) -> nl, write('Vous avez choisi de déplacer "'),write(Pers),write('" qui est en position : '), write(Pos),write(' a la position position : '), write(Position),nl, !;
-            g_ChoixNonExistant
+            a_Deplacer(Pers, Position) -> g_PopEcran(_), % retire 'g_VousAvezChoisiDeplacer'
+                                          g_PersoSeDeplacerEn(Pers, Pos, Position), !;
+            g_ChoixNonExistant, g_NettoieEcranMaisAttendUnPeutQuandMeme
         ),
     fail.
 
@@ -52,18 +58,22 @@ c_Eliminer(joueur(Tueur,_)) :-
     \+ b_ActionEliminer(Tueur).
 
 b_ActionEliminer(Tueur) :-
+    g_NettoieEcran,
     repeat,
-        writeln('Quel personnage tuer ? : (entrer le nom du personnage)'),
+        nl, writeln('Quel personnage tuer ?'),
+        g_QuestionChoisirePersonnage,
+        nl, % TODO: g_QPourQuitter,
         g_Repondre(Victime),
         (
-            a_Tuer(Tueur,Victime) -> nl, write('Le personnage "'),write(Victime),write('" est mort.'),nl, !;
-            g_ChoixNonExistant
+            \+ r_Tuer(Tueur, Victime), g_PositionPermetPasTuer(Victime) ;
+            a_Tuer(Tueur, Victime) -> g_PersonnageEstMort(Victime), !;
+            g_ChoixNonExistant, g_NettoieEcranMaisAttendUnPeutQuandMeme
         ),
     fail.
 
 f_TueurIncapable(Tueur) :-
-    \+ personnage(Tueur,_,vivant), write('Votre tueur a gage est mort donc plus de bain de sang possible'), !;
-    \+ r_Tuable(Tueur,_), write('La position de votre tueur a gage ne vous permet pas de tuer quelqu\'un ...'), !;
+    \+ personnage(Tueur,_,vivant), write('Votre tueur a gage est mort donc plus de bain de sang possible!'), !;
+    \+ r_Tuer(Tueur,_), g_PositionPermetPasTuer('quelqu\'un'), !;
     false.
 
 c_Controler :- c_NotImplemented.
@@ -74,7 +84,7 @@ c_ConsulterPersonnagesVivant :-
 
 c_VoirPlateau :-
     g_NettoieEcran,
-    \+ b_VoirCasesPlateau. % les c_.. doivent toujours renvoyer vrai, mais les boucles repeat..fail finissent toujours par faux (note : !=break)
+    \+ b_VoirCasesPlateau.
 
 c_IA :-
     writeln('Un conseil ? Ne fait pas du Porlog !').
@@ -91,7 +101,7 @@ b_VoirCasesPlateau :-
         g_QPourQuitter,
         g_Repondre(Choix),
         (
-            Choix == 'q' -> !;
+            Choix = q -> g_RetourAuMenu, !;
             case(Choix, _) -> (
                 findall(I, (personnage(I,Choix,vivant), \+ policier(I)), Personnages),
                 g_PersonnagesSurCase(Choix, Personnages),
@@ -103,12 +113,12 @@ b_VoirCasesPlateau :-
 
 b_ActionsPrincipales(JoueurEnCours) :-
     repeat,
-        % g_NettoieEcranMaisAttendUnPeutQuandMeme,
-        g_NettoieEcran,
+        g_NettoieEcranMaisAttendUnPeutQuandMeme,
+        %g_NettoieEcran,
         g_QuestionActionSouhaitee(JoueurEnCours),
         g_Repondre(Choix),
         (
-            Choix == exit -> halt;
+            (Choix == exit ; Choix == q) -> halt;
             Choix == 1 -> c_Deplacer, !;
             Choix == 2 -> c_Eliminer(JoueurEnCours), !;
             Choix == 3 -> c_Controler, !;
@@ -128,9 +138,8 @@ b_Partie :-
         g_PushEcran(g_JoueurEnCours(JoueurEnCours, N)),
         between(1, 2, I),
             g_PushEcran(g_EtatAction(I)),
-            write('1C est au tour de I : '), writeln(I),
             g_PushEcran(g_Terrain),
-            b_ActionsPrincipales(JoueurEnCours),
+            \+ b_ActionsPrincipales(JoueurEnCours),
             g_PopEcran(_), % retire l'affichage du terrain
             g_PopEcran(_), % retire l'affichage du compteur de tour précédent
         I == 2, % (la suite n'est execute que si on arrive à I == 2)
@@ -151,5 +160,5 @@ b_LancementJeu :-
             g_ChoixNonExistant, fail
         ).
 
-:- guitracer, trace,
+:- %guitracer, trace,
    b_LancementJeu.

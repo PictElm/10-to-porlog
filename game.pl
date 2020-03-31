@@ -47,7 +47,7 @@ r_Tuer(I1, I2) :-
     personnage(I2, (X2,Y2), vivant),
     (
         % par couteau
-        (X1,Y1) == (X2,Y2), ! % Attention la le suicide est authorise
+        (X1,Y1) == (X2,Y2), I1 \= I2, !
         ;
         % par pistolet
         r_EtreAdjacent((X1,Y1), (X2,Y2)),
@@ -55,8 +55,8 @@ r_Tuer(I1, I2) :-
         ;
         % par sniper
         case((X1,Y1), true),
-        \+ r_TemoinPresent(I1,(X1,Y1)),
-        (X1 == X2 ; Y1 == Y2), !
+        (X1 == X2 ; Y1 == Y2),
+        \+ r_TemoinPresent(I1,(X1,Y1)), !
     ).
 
 r_TemoinPresent(Tueur,(X,Y)) :-
@@ -67,25 +67,26 @@ r_TemoinPresent(Tueur,(X,Y)) :-
     personnage(Temoin,(X2,Y2),vivant),
     policier(Temoin).
 
-r_Tuable(I1, I2) :-
-    personnage(I1, (X1,Y1), vivant),
-    \+ policier(I1),
-    personnage(I2, (X2,Y2), vivant),
-    (
-        % par couteau
-        (X1,Y1) == (X2,Y2), I1\=I2
-        ;
-        % par sniper
-        case((X1,Y1), true),
-        (X1,Y1) \= (X2,Y2),
-        (X1 == X2 ; Y1 == Y2),
-        \+ r_TemoinPresent(I1,(X1,Y1))
-        ;
-        % par pistolet
-        \+ case((X1,Y1), true), % les cases snipers sont forcément adjacentes donc fin de la recherche
-        r_EtreAdjacent((X1,Y1), (X2,Y2)),
-        \+ r_TemoinPresent(I1,(X1,Y1))
-    ).
+% duplicat ><
+% r_Tuable(I1, I2) :-
+%     personnage(I1, (X1,Y1), vivant),
+%     \+ policier(I1),
+%     personnage(I2, (X2,Y2), vivant),
+%     (
+%         % par couteau
+%         (X1,Y1) == (X2,Y2), I1\=I2
+%         ;
+%         % par sniper
+%         case((X1,Y1), true),
+%         (X1,Y1) \= (X2,Y2),
+%         (X1 == X2 ; Y1 == Y2),
+%         \+ r_TemoinPresent(I1,(X1,Y1))
+%         ;
+%         % par pistolet
+%         \+ case((X1,Y1), true), % les cases snipers sont forcément adjacentes donc fin de la recherche
+%         r_EtreAdjacent((X1,Y1), (X2,Y2)),
+%         \+ r_TemoinPresent(I1,(X1,Y1))
+%     ).
 
 r_PlacerPolicier(I2) :-
     personnage(I2,(X,Y),_),
