@@ -242,3 +242,21 @@ displTerrain() :-
 
 g_Terrain :-
     \+ displTerrain(), nl.
+
+g_AnnoncerMeurtre(I,Pos,Policier) :-
+    nl,
+    writeln(' -----------------'),
+    write(' C\'est terrible ! '),
+    write(I),write(' est mort sur la case ('),write(Pos),writeln(') !'),
+    g_PolicierPresent(Policier).
+
+g_PolicierPresent(policierPasPresent) :- 
+    nl,
+    write('Aucun policier ne c\'est rendu sur place, evacuez tous les temoins de cette barbarie puis deplacer un policier.'),
+    nl.
+
+g_PolicierPresent(Policier) :-
+    Policier \= policierPasPresent,
+    nl,
+    write('Le policier '),write(Policier),write(' c\'est rendu sur place, evacuez tous les temoins de cette barbarie.'),
+    nl.

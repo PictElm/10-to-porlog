@@ -74,6 +74,7 @@ b_ActionEliminer(Tueur) :-
 f_TueurIncapable(Tueur) :-
     \+ personnage(Tueur,_,vivant), write('Votre tueur a gage est mort donc plus de bain de sang possible!'), !;
     \+ r_Tuer(Tueur,_), g_PositionPermetPasTuer('quelqu\'un'), !;
+    victime(_,_,_), nl,writeln('Vous ne pouvez faire qu\'une victime par tour'),!; % Une seule victime possible par tour
     false.
 
 c_Controler :- c_NotImplemented.
@@ -136,6 +137,7 @@ b_Partie :-
     repeat,
         nth0(N, ListeJoueurs, JoueurEnCours),
         g_PushEcran(g_JoueurEnCours(JoueurEnCours, N)),
+        a_EvacuerZone,   %%%% -------------------- Peut etre mieux le placer, l'affichage est pas ouf
         between(1, 2, I),
             g_PushEcran(g_EtatAction(I)),
             g_PushEcran(g_Terrain),

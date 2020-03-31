@@ -1,6 +1,11 @@
+:- abolish(victime,3).
+
 :- dynamic personnage/3.
 :- dynamic policier/1.
 :- dynamic case/2.
+:- dynamic victime/3.
+
+:- retractall(victime(_,_,_)).
 
 % Nomenclature :
 % I = index d'un personnage
@@ -89,14 +94,56 @@ r_TemoinPresent(Tueur,(X,Y)) :-
 %     ).
 
 r_PlacerPolicier(I2) :-
-    personnage(I2,(X,Y),_),
+    personnage(I2,Pos,_),
     personnage(Policier,nonPose,vivant), % Si certains policiers ne sont pas encore sur le plateau
     retractall(personnage(Policier,_,vivant)),
-    assert(personnage(Policier,(X,Y),vivant)),true, ! ;
-    true. % Si tous les policiers ont été placés, on ne fait rien
+    assert(personnage(Policier,Pos,vivant)),r_ZoneVictime(I2,Pos,Policier), ! ;
+    personnage(I2,Pos,_),
+    r_ZoneVictime(I2,Pos,policierPasPresent),true. % Si tous les policiers ont été placés, on ne fait rien
+
+r_ZoneVictime(I,Pos,Policier) :- % stocke les infos sur la victime
+    case(Pos,_),
+    retractall(victime(_,_,_)),
+    assert(victime(I,Pos,Policier)).
 
 a_Tuer(I1, I2) :-
     r_Tuer(I1, I2),
     r_PlacerPolicier(I2),  % on rajoute un policier sur la case s'il en reste en reserve
     retractall(personnage(I2,_,vivant)),
     assert(personnage(I2,_,I1)).
+
+a_EvacuerZone :-
+    victime(I,Pos,Policier),
+    g_AnnoncerMeurtre(I,Pos,Policier),
+    case(Pos,_),
+    findall(Pers, (personnage(Pers,Pos,vivant),Pers\=Policier), Personnages),
+    r_Evacuer(Personnages,Policier),
+    retractall(victime(_,_,_)),g_NettoieEcranMaisAttendUnPeutQuandMeme;
+    true.
+
+r_Evacuer([I|Q],Policier) :- 
+    \+ b_Evacuer(I),
+    r_Evacuer(Q,Policier).
+
+r_Evacuer([],Policier) :- 
+    nl,
+    writeln('Tous les temoins ont ete deplaces.'),
+    Policier = policierPasPresent
+    % writeln('Il faut que vous deplaciez un des policiers du plateau') 
+    % TODO : faire le predicat pour deplacer un policier du plateau
+    ;
+    true.
+
+b_Evacuer(I) :-
+    personnage(I,Pos,vivant),
+    repeat,nl,
+    write('Choisir ou deplacer le personnage '),write(I),nl,
+    g_QuestionChoisireCase,
+    g_Repondre(PosNew),
+    (
+        prompt(_,''),
+        a_Deplacer(I,PosNew) -> g_PersoSeDeplacerEn(I, Pos, PosNew), !;
+            g_ChoixNonExistant
+    ),
+    fail.
+
