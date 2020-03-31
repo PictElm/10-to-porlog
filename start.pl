@@ -31,8 +31,12 @@ f_Deplacable(Pers, Pos) :- nl,
     Pers \= q,
     personnage(Pers,_,Vie),
     Vie=vivant.
-    
-c_Deplacer(Pers, Pos) :- nl,
+
+c_Deplacer :- nl,
+    f_Deplacable(Pers, Pos),
+    \+ b_ActionDepacer(Pers, Pos).
+
+b_ActionDepacer(Pers, Pos) :-
     repeat,
         write('A quelle position deplacer '),write(Pers),write(' ? : (entrer la position sous forme (X,Y))'),nl,
         g_Repondre(Position),
@@ -43,9 +47,13 @@ c_Deplacer(Pers, Pos) :- nl,
     fail.
 
 c_Eliminer(joueur(Tueur,_)) :- 
+    \+ f_TueurIncapable(Tueur),
     nl,
+    \+ b_ActionEliminer(Tueur).
+
+b_ActionEliminer(Tueur) :-
     repeat,
-    writeln('Quel personnage tuer ? : (entrer le nom du personnage)'),
+        writeln('Quel personnage tuer ? : (entrer le nom du personnage)'),
         g_Repondre(Victime),
         (
             a_Tuer(Tueur,Victime) -> nl, write('Le personnage "'),write(Victime),write('" est mort.'),nl, !;
@@ -53,10 +61,9 @@ c_Eliminer(joueur(Tueur,_)) :-
         ),
     fail.
 
-f_TueurIncapable(joueur(Tueur,_)) :-
-    \+ personnage(Tueur,_,vivant), write('Votre tueur a gage est mort donc plus de bain de sang possible'),!;
-    \+ r_Tuable(Tueur,_),
-    write('La position de votre tueur a gage ne vous permet pas de tuer quelqu\'un ...'),!;
+f_TueurIncapable(Tueur) :-
+    \+ personnage(Tueur,_,vivant), write('Votre tueur a gage est mort donc plus de bain de sang possible'), !;
+    \+ r_Tuable(Tueur,_), write('La position de votre tueur a gage ne vous permet pas de tuer quelqu\'un ...'), !;
     false.
 
 c_Controler :- c_NotImplemented.
@@ -94,7 +101,7 @@ b_VoirCasesPlateau :-
         ),
     fail.
 
-b_ActionsPrincipales(JoueurEnCours) :- 
+b_ActionsPrincipales(JoueurEnCours) :-
     repeat,
         % g_NettoieEcranMaisAttendUnPeutQuandMeme,
         g_NettoieEcran,
@@ -102,8 +109,8 @@ b_ActionsPrincipales(JoueurEnCours) :-
         g_Repondre(Choix),
         (
             Choix == exit -> halt;
-            Choix == 1, f_Deplacable(Pers, Pos) -> c_Deplacer(Pers, Pos), !;
-            Choix == 2, \+ f_TueurIncapable(JoueurEnCours) -> c_Eliminer(JoueurEnCours), !;
+            Choix == 1 -> c_Deplacer, !;
+            Choix == 2 -> c_Eliminer(JoueurEnCours), !;
             Choix == 3 -> c_Controler, !;
             Choix == 4 -> c_VoirPlateau;
             Choix == 5 -> c_ConsulterPersonnagesVivant;
@@ -129,8 +136,7 @@ b_Partie :-
         I == 2, % (la suite n'est execute que si on arrive à I == 2)
         g_PopEcran(_), % retire l'affichage du nom du joueur précédent
     fail.
-        %N is N+1 mod 3. % lol y en a pas besoin, et de toute facon il est jaja execute (rien n'est execute apres un 'fail , _') et en fait Prolog fait le cafe tout seul pasque nth0(N,_,_) vas trouver tout seul toutes les valeurs de N possible et grace au repeat il retry depuis N=0 après avoir fait tous les indices... big brain right hear!
-        
+
 b_LancementJeu :-
     prompt(_,''), % pour enlever le '|:' dégeulasse de prolog
     g_PushEcran(g_Titre),
@@ -145,5 +151,5 @@ b_LancementJeu :-
             g_ChoixNonExistant, fail
         ).
 
-:- %guitracer, trace,
+:- guitracer, trace,
    b_LancementJeu.

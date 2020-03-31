@@ -25,9 +25,7 @@ g_AffichePileEcrans([H|T]) :-
 
 g_NettoieEcran :- nl,
     write('\e[2J'),
-    screenStack(S),
-    length(S, N),
-    %write('@ '), write(N), writeln(' ecrans empiles'),
+    %screenStack(S), length(S, N), write('@ '), write(N), writeln(' ecrans empiles'),
     g_AffichePileEcrans.
 
 g_NettoieEcranMaisAttendUnPeutQuandMeme :- nl,
