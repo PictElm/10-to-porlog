@@ -141,6 +141,9 @@ g_PersoSeDeplacerEn(Pers, Pos, Position) :- nl,
     write('" se deplace de '), write(Pos),
     write(' jusqu\'en '), writeln(Position).
 
+g_PlusDeTueur :- nl,
+    writeln('     Votre tueur a gage est mort donc plus de bain de sang possible !').
+
 g_PositionPermetPasTuer(Victime) :- nl,
     write('     La position de votre tueur a gage ne vous permet pas de tuer '), write(Victime), writeln('...').
 
