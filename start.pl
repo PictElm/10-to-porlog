@@ -3,7 +3,7 @@
 :- consult('game.pl').
 :- consult('graphics.pl').
 
-% Pour plus de clarté, ce document se lit de bas en haut (en partant de la boucle de lancement du jeu) ((pas tjr, dsl, rip, mybad -- Sel))
+% Pour plus de clarté, ce document se lit de bas en haut (en partant de la boucle de lancement du jeu)
 % Le programme/jeu débute par le menu et est constitué de plusieurs tours (correspondant au tour d'un autre joueur).
 % Chaque joueur peut effectuer 2 actions, sauf s'il décide d'éliminer quelqu'un (correspondant à 2 actions d'un coup)
 
@@ -13,6 +13,7 @@
 %   g : graphique/affichage
 %   a : action
 %   r : recherche
+%   f : Martin
 
 % ---- CHOIX PRIT PAR L'UTILISATEUR ----
 c_NotImplemented :- nl,
@@ -54,26 +55,27 @@ b_ActionDepacer(Pers, Pos) :-
 
 c_Eliminer(joueur(Tueur,_)) :- 
     \+ f_TueurIncapable(Tueur),
-    nl,
-    \+ b_ActionEliminer(Tueur).
+    b_ActionEliminer(Tueur).
 
 b_ActionEliminer(Tueur) :-
     g_NettoieEcran,
     repeat,
         nl, writeln('Quel personnage tuer ?'),
         g_QuestionChoisirePersonnage,
-        nl, % TODO: g_QPourQuitter,
+        g_QPourQuitter,
         g_Repondre(Victime),
         (
-            \+ r_Tuer(Tueur, Victime), g_PositionPermetPasTuer(Victime) ;
-            a_Tuer(Tueur, Victime) -> g_PersonnageEstMort(Victime), !;
-            g_ChoixNonExistant, g_NettoieEcranMaisAttendUnPeutQuandMeme
+            Victime = q -> g_RetourAuMenu, ATuer = false, !;
+            \+ r_Tuer(Tueur, Victime), g_PositionPermetPasTuer(Victime), ATuer = false ;
+            a_Tuer(Tueur, Victime) -> g_PersonnageEstMort(Victime), ATuer = true, !;
+            g_ChoixNonExistant, g_NettoieEcranMaisAttendUnPeutQuandMeme, ATuer = false
         ),
-    fail.
+    Victime \= q,
+    ATuer = true.
 
 f_TueurIncapable(Tueur) :-
-    \+ personnage(Tueur,_,vivant), write('Votre tueur a gage est mort donc plus de bain de sang possible!'), !;
-    \+ r_Tuer(Tueur,_), g_PositionPermetPasTuer('quelqu\'un'), !;
+    \+ personnage(Tueur,_,vivant), g_PlusDeTueur, !;
+    \+ r_Tuable(Tueur,_), g_PositionPermetPasTuer('quelqu\'un'), !;
     victime(_,_,_), nl,writeln('Vous ne pouvez faire qu\'une victime par tour'),!; % Une seule victime possible par tour
     false.
 
@@ -115,7 +117,6 @@ b_VoirCasesPlateau :-
 b_ActionsPrincipales(JoueurEnCours) :-
     repeat,
         g_NettoieEcranMaisAttendUnPeutQuandMeme,
-        %g_NettoieEcran,
         g_QuestionActionSouhaitee(JoueurEnCours),
         g_Repondre(Choix),
         (
