@@ -1,5 +1,6 @@
 :- abolish(joueur, 2).
 
+:- dynamic personnage/3.
 :- dynamic joueur/2.
 
 % Retire un element aléatoire de List1, l'associe à Elm, et List2 est List1 sans Elm.
@@ -22,7 +23,7 @@ construireListeJoueur(Personnages, N) :-
     construireListeJoueur(NouveauPersonnages, P).
 
 % Construit la liste de N joueurs à partire des personnages vivants.
-a_FaireJoueurs(N) :-
+a_CreerJoueurs(N) :-
     findall(I, personnage(I,(_,_),vivant), Personnages),
     \+ construireListeJoueur(Personnages, N).
 
