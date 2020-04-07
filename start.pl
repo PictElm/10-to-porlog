@@ -79,7 +79,20 @@ f_TueurIncapable(Tueur) :-
     victime(_,_,_), nl,writeln('Vous ne pouvez faire qu\'une victime par tour'),!; % Une seule victime possible par tour
     false.
 
-c_Controler :- c_NotImplemented.
+b_ActionControler :-     
+    g_NettoieEcran,
+    repeat,
+        nl, write('Qui controler ?'),
+        g_QuestionChoisirePersonnage,
+        nl,
+        g_Repondre(I),
+        (
+            r_ControlerIdentite(_,I) -> writeln('mon test de batard'), !;  %a_ControlerIdentite(I)
+            g_ChoixNonExistant, g_NettoieEcranMaisAttendUnPeutQuandMeme
+        ),
+    fail.
+
+c_Controler :- \+ b_ActionControler.
 
 c_ConsulterPersonnagesVivant :- 
     findall((I,Pos), personnage(I,Pos,vivant), ListePersonnages),
