@@ -140,7 +140,7 @@ b_Partie :-
         length(ListeJoueurs, K),
         N < K,
         g_PushEcran(g_JoueurEnCours(JoueurEnCours, N)),
-        a_EvacuerZone,   %%%% -------------------- Peut etre mieux le placer, l'affichage est pas ouf
+        a_EvacuerZone,   %%%% -------------------- Peut etre mieux le placer, l'affichage est pas ouf. Tres bien.
         between(1, 2, I),
             g_PushEcran(g_EtatAction(I)),
             g_PushEcran(g_Terrain),
@@ -152,7 +152,7 @@ b_Partie :-
     fail.
 
 b_LancementJeu :-
-    prompt(_,''), % pour enlever le '|:' dégeulasse de prolog
+    prompt(_,''), % pour enlever le '|:' pas propre de prolog
     g_PushEcran(g_Titre),
     g_NettoieEcran,
     repeat,

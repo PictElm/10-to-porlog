@@ -24,7 +24,7 @@ g_AffichePileEcrans([H|T]) :-
     call(H), g_AffichePileEcrans(T).
 
 g_NettoieEcran :- nl,
-    % write('\e[2J'),
+    write('\e[2J'),
     %screenStack(S), length(S, N), write('@ '), write(N), writeln(' ecrans empiles'),
     g_AffichePileEcrans.
 

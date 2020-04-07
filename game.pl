@@ -115,6 +115,7 @@ a_Tuer(I1, I2) :-
 
 a_EvacuerZone :-
     victime(I,Pos,Policier),
+    g_NettoieEcran,
     g_AnnoncerMeurtre(I,Pos,Policier),
     case(Pos,_),
     findall(Pers, (personnage(Pers,Pos,vivant),Pers\=Policier), Personnages),
