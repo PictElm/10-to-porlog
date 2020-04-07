@@ -263,3 +263,9 @@ g_PolicierPresent(Policier) :-
     nl,
     write('Le policier '),write(Policier),write(' c\'est rendu sur place, evacuez tous les temoins de cette barbarie.'),
     nl.
+
+g_QuestionChoisirJoueur(N) :- nl,
+    write('     Entrer le numéro d\'un joueur (entre 1 et '),
+    write(N), write(')'), 
+    nl.
+

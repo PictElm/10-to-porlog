@@ -87,10 +87,33 @@ b_ActionControler :-
         nl,
         g_Repondre(I),
         (
-            r_ControlerIdentite(_,I) -> writeln('mon test de batard'), !;  %a_ControlerIdentite(I)
+            r_ControlerIdentite(_,I) -> \+ b_Demasquer(I), !;  %a_ControlerIdentite(I)
             g_ChoixNonExistant, g_NettoieEcranMaisAttendUnPeutQuandMeme
         ),
     fail.
+
+b_Demasquer(I) :-
+    g_NettoieEcran,
+    repeat,
+        nl, write('De qui soupconnez vous est ce tueur a gage ?'), 
+        r_TousLesJoueurs(L),
+        length(L,N),
+        g_QuestionChoisirJoueur(N),
+        nl,
+        g_Repondre(Num),
+        (
+            integer(Num), 0 < Num, Num =< N -> a_Demasquer(I,Num), !;  %a_ControlerIdentite(I)
+            g_ChoixNonExistant, g_NettoieEcranMaisAttendUnPeutQuandMeme
+        ),
+    fail.
+
+a_Demasquer(I,Num) :-
+    r_TousLesJoueurs(L),
+    nth1(Num,L,joueur(I,_)),
+    write('C\'est son tueur'),!
+    ;
+    write('test pas bon'),
+    true.
 
 c_Controler :- \+ b_ActionControler.
 
@@ -178,5 +201,5 @@ b_LancementJeu :-
             g_ChoixNonExistant, fail
         ).
 
-:- %guitracer, trace,
+:- %guitracer, %trace,
    b_LancementJeu.
