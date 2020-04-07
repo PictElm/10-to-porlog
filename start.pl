@@ -137,6 +137,8 @@ b_Partie :-
     g_DebutPartie,
     repeat,
         nth0(N, ListeJoueurs, JoueurEnCours),
+        length(ListeJoueurs, K),
+        N < K,
         g_PushEcran(g_JoueurEnCours(JoueurEnCours, N)),
         a_EvacuerZone,   %%%% -------------------- Peut etre mieux le placer, l'affichage est pas ouf
         between(1, 2, I),
