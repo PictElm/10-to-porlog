@@ -79,43 +79,47 @@ f_TueurIncapable(Tueur) :-
     victime(_,_,_), nl,writeln('Vous ne pouvez faire qu\'une victime par tour'),!; % Une seule victime possible par tour
     false.
 
-b_ActionControler :-     
+b_ActionControler(N) :-     
     g_NettoieEcran,
     repeat,
         nl, write('Qui controler ?'),
         g_QuestionChoisirePersonnage,
+        g_QPourQuitter,
         nl,
         g_Repondre(I),
         (
-            r_ControlerIdentite(_,I) -> \+ b_Demasquer(I), !;  %a_ControlerIdentite(I)
+            I = q -> g_RetourAuMenu, !;
+            r_ControlerIdentite(_,I) -> \+ b_Demasquer(I,N), !;  %a_ControlerIdentite(I)
             g_ChoixNonExistant, g_NettoieEcranMaisAttendUnPeutQuandMeme
         ),
     fail.
 
-b_Demasquer(I) :-
+b_Demasquer(I,N) :-
     g_NettoieEcran,
     repeat,
         nl, write('De qui soupconnez vous est ce tueur a gage ?'), 
         r_TousLesJoueurs(L),
-        length(L,N),
-        g_QuestionChoisirJoueur(N),
+        length(L,NbJoueurs),
+        g_QuestionChoisirJoueur(NbJoueurs),
         nl,
         g_Repondre(Num),
         (
-            integer(Num), 0 < Num, Num =< N -> a_Demasquer(I,Num), !;  %a_ControlerIdentite(I)
+            integer(Num), 0 < Num, Num =< NbJoueurs -> a_Demasquer(I,Num,N), !;  %a_ControlerIdentite(I)
             g_ChoixNonExistant, g_NettoieEcranMaisAttendUnPeutQuandMeme
         ),
     fail.
 
-a_Demasquer(I,Num) :-
+a_Demasquer(I,Num,N) :-
     r_TousLesJoueurs(L),
     nth1(Num,L,joueur(I,_)),
-    write('C\'est son tueur'),!
+    write('C\'est son tueur'),
+    retractall(personnage(I,_,vivant)),
+    assert(personnage(I,_,N)), !
     ;
     write('test pas bon'),
     true.
 
-c_Controler :- \+ b_ActionControler.
+c_Controler(N) :- \+ b_ActionControler(N).
 
 c_ConsulterPersonnagesVivant :- 
     findall((I,Pos), personnage(I,Pos,vivant), ListePersonnages),
@@ -150,7 +154,7 @@ b_VoirCasesPlateau :-
         ),
     fail.
 
-b_ActionsPrincipales(JoueurEnCours) :-
+b_ActionsPrincipales(JoueurEnCours,N) :-
     repeat,
         g_NettoieEcranMaisAttendUnPeutQuandMeme,
         g_QuestionActionSouhaitee(JoueurEnCours),
@@ -159,7 +163,7 @@ b_ActionsPrincipales(JoueurEnCours) :-
             (Choix == exit ; Choix == q) -> halt;
             Choix == 1 -> c_Deplacer, !;
             Choix == 2 -> c_Eliminer(JoueurEnCours), !;
-            Choix == 3 -> c_Controler, !;
+            Choix == 3 -> c_Controler(N), !;
             Choix == 4 -> c_VoirPlateau;
             Choix == 5 -> c_ConsulterPersonnagesVivant;
             Choix == 6 -> c_IA;
@@ -180,7 +184,7 @@ b_Partie :-
         between(1, 2, I),
             g_PushEcran(g_EtatAction(I)),
             g_PushEcran(g_Terrain),
-            \+ b_ActionsPrincipales(JoueurEnCours),
+            \+ b_ActionsPrincipales(JoueurEnCours, N),
             g_PopEcran(_), % retire l'affichage du terrain
             g_PopEcran(_), % retire l'affichage du compteur de tour précédent
         I == 2, % (la suite n'est execute que si on arrive à I == 2)

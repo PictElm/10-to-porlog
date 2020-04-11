@@ -24,7 +24,7 @@ g_AffichePileEcrans([H|T]) :-
     call(H), g_AffichePileEcrans(T).
 
 g_NettoieEcran :- nl,
-    write('\e[2J'),
+    %write('\e[2J'),
     %screenStack(S), length(S, N), write('@ '), write(N), writeln(' ecrans empiles'),
     g_AffichePileEcrans.
 
@@ -81,7 +81,7 @@ g_DebutPartie :- nl, nl,
     writeln('      -------------------------------- ').
 
 g_JoueurEnCours(JoueurEnCours, N) :- nl,
-    write('          C\'est au tour de : '), write(JoueurEnCours), write(' (joueur no '), write(N), write(')').
+    write('          C\'est au tour de : '), write(JoueurEnCours), write(' (joueur no '), M is N+1, write(M), write(')').
 
 g_EtatAction(I) :- nl,
     write('           --------------- '), nl,
@@ -105,7 +105,25 @@ g_QuestionActionSouhaitee(joueur(Tueur,_)) :- nl,
     writeln('      ---                            '),
     writeln('     | 6 | Se faire conseiller       '),
     writeln('      ---                            '),!;
-    % Si le tueur à gage du joueur est vivant
+    personnage(Tueur,_,Captureur),
+    integer(Captureur),
+    % Si le tueur à gage a été capturé
+    writeln('     Que voulez-vous faire ?'), nl, nl,
+    writeln('          --> AGIR <--'), nl,
+    writeln('      ---                            ---'),
+    writeln('     | 1 | Deplacer un personnage   | 2 | Votre tueur a ete capture'),
+    writeln('      ---                            ---'), 
+    writeln('      ---  Controler l\'identite     '),
+    writeln('     | 3 |   d\'un personnage a      '),
+    writeln('      ---  l\'aide d\'un policier    '), nl, nl,
+    writeln('          --> ou CONSULTER <--'), nl,
+    writeln('      ---                            ---      Consulter les    '),
+    writeln('     | 4 | Voir le plateau          | 5 | personnages/policiers'),
+    writeln('      ---                            ---        vivants       '),
+    writeln('      ---                            '),
+    writeln('     | 6 | Se faire conseiller       '),
+    writeln('      ---                            '),!;
+    % Si le tueur à gage du joueur est mort
     writeln('     Que voulez-vous faire ?'), nl, nl,
     writeln('          --> AGIR <--'), nl,
     writeln('      ---                            ---'),
@@ -267,9 +285,9 @@ g_PolicierPresent(Policier) :-
 g_QuestionChoisirJoueur(N) :- nl,
     write('     Entrer le numéro d\'un joueur (entre 1 et '),
     write(N), write(')'), 
-    nl.
+    nl,nl.
 
 g_ResultafficherDeLaPartieFin :- nl,
-    write('--- FIN    DE PARTIE ! ---'), nl
+    write('--- FIN    DE PARTIE ! ---'), nl,
     writeln('You fought bravely, but were unfortunate.'),
     read(_), read(_), read(_), read(_), read(_), read(_).
