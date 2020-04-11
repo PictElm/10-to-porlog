@@ -282,10 +282,10 @@ g_PolicierPresent(Policier) :-
     write('Le policier '),write(Policier),write(' c\'est rendu sur place, evacuez tous les temoins de cette barbarie.'),
     nl.
 
-g_QuestionChoisirJoueur(N) :- nl,
-    write('     Entrer le numéro d\'un joueur (entre 1 et '),
+g_QuestionChoisirJoueur(N) :- nl,nl,
+    write('     Entrer le numero d\'un joueur (entre 1 et '),
     write(N), write(')'), 
-    nl,nl.
+    nl.
 
 g_ResultafficherDeLaPartieFin :- nl,
     write('--- FIN    DE PARTIE ! ---'), nl,

@@ -82,11 +82,11 @@ f_TueurIncapable(Tueur) :-
 b_ActionControler(N) :-     
     g_NettoieEcran,
     repeat,
-        nl, write('Qui controler ?'),
+        nl, writeln('Qui controler ?'),
         g_QuestionChoisirePersonnage,
-        g_QPourQuitter,
-        nl,
+        %g_QPourQuitter, <--------------------------- TO DO
         g_Repondre(I),
+        nl,
         (
             I = q -> g_RetourAuMenu, !;
             r_ControlerIdentite(_,I) -> \+ b_Demasquer(I,N), !;  %a_ControlerIdentite(I)
@@ -101,7 +101,6 @@ b_Demasquer(I,N) :-
         r_TousLesJoueurs(L),
         length(L,NbJoueurs),
         g_QuestionChoisirJoueur(NbJoueurs),
-        nl,
         g_Repondre(Num),
         (
             integer(Num), 0 < Num, Num =< NbJoueurs -> a_Demasquer(I,Num,N), !;  %a_ControlerIdentite(I)
@@ -110,13 +109,13 @@ b_Demasquer(I,N) :-
     fail.
 
 a_Demasquer(I,Num,N) :-
-    r_TousLesJoueurs(L),
+    r_TousLesJoueurs(L), nl,
     nth1(Num,L,joueur(I,_)),
-    write('C\'est son tueur'),
+    write('Bravo '), write(I), write(' est bien le tueur du joueur n '), write(N),nl,
     retractall(personnage(I,_,vivant)),
     assert(personnage(I,_,N)), !
     ;
-    write('test pas bon'),
+    write('Dommage, '),write(I), write(' n\'est pas le tueur du joueur n '), write(N),nl,
     true.
 
 c_Controler(N) :- \+ b_ActionControler(N).
@@ -180,7 +179,7 @@ b_Partie :-
         length(ListeJoueurs, K),
         N < K,
         g_PushEcran(g_JoueurEnCours(JoueurEnCours, N)),
-        a_EvacuerZone,   %%%% -------------------- Peut etre mieux le placer, l'affichage est pas ouf. Tres bien.
+        a_EvacuerZone,
         between(1, 2, I),
             g_PushEcran(g_EtatAction(I)),
             g_PushEcran(g_Terrain),
