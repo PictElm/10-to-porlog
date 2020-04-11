@@ -269,3 +269,7 @@ g_QuestionChoisirJoueur(N) :- nl,
     write(N), write(')'), 
     nl.
 
+g_ResultafficherDeLaPartieFin :- nl,
+    write('--- FIN    DE PARTIE ! ---'), nl
+    writeln('You fought bravely, but were unfortunate.'),
+    read(_), read(_), read(_), read(_), read(_), read(_).

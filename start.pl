@@ -185,21 +185,24 @@ b_Partie :-
             g_PopEcran(_), % retire l'affichage du compteur de tour précédent
         I == 2, % (la suite n'est execute que si on arrive à I == 2)
         g_PopEcran(_), % retire l'affichage du nom du joueur précédent
-    fail.
+    r_EstPartieFinie(N), !. % si la partie est finit, cut (~ `return@b_Partie`) ; sinon c'est la même chose que le `fail` habituel
 
 b_LancementJeu :-
-    prompt(_,''), % pour enlever le '|:' pas propre de prolog
+    prompt(_,''), % pour enlever le '|:' pas propre de porlog
     g_PushEcran(g_Titre),
     g_NettoieEcran,
     repeat,
         g_QuestionNbJoueurs,
         g_Repondre(Choix),
+        g_QPourQuitter,
         (
             % Ce qui est inséré doit être un chiffre entier de 2 à 4 sinon on reboucle
             integer(Choix), Choix > 1, Choix < 5 -> c_CreationPartie(Choix), !;
             Choix == 'q' -> halt;
             g_ChoixNonExistant, fail
-        ).
+        ),
+    g_NettoieEcran,
+    g_ResultafficherDeLaPartieFin.
 
 :- %guitracer, %trace,
    b_LancementJeu.

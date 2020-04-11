@@ -28,3 +28,16 @@ a_CreerJoueurs(N) :-
     \+ construireListeJoueur(Personnages, N).
 
 r_TousLesJoueurs(L) :- findall(joueur(X,[A,B,C]),joueur(X,[A,B,C]),L).
+
+% ===== j'me met là mais c'est pour par avois de problème de git blabla pouêt =====
+
+% fail si la partie n'est pas encore finit, success otherwise
+% @param N        l'indice dans la liste des joueur de celui qui vient de jouer
+% @param Joueurs  la liste des joueurs dans la partie
+r_EstPartieFinie(N) :-
+    r_TousLesJoueurs(ListeJoueurs)
+    % trouver si \exists un joueur tq/ \forall ses cibles, bah elles sont mortes
+    %   dans ce cas, mettre un flag : la partie fini à la fin du tour
+    % vérifier si \exists un joueur tq/ son tueur soir encore en vie
+    %   sinon, la partie fini imédiatement
+    fail.
