@@ -78,20 +78,18 @@ r_TueurIncapable(Tueur) :-
     victime(_,_,_), nl,writeln('Vous ne pouvez faire qu\'une victime par tour'),!; % Une seule victime possible par tour
     false.
 
-b_ActionControler(N) :-     
+b_ActionControler(N) :-
     g_NettoieEcran,
     repeat,
         nl, writeln('Qui controler ?'),
         g_QuestionChoisirePersonnage,
-        %g_QPourQuitter, <--------------------------- TO DO
+        g_QPourQuitter,
         g_Repondre(I),
-        nl,
         (
             I = q -> g_RetourAuMenu, !;
-            r_ControlerIdentite(_,I) -> \+ b_Demasquer(I,N), !;  %a_ControlerIdentite(I)
-            g_ChoixNonExistant, g_NettoieEcranMaisAttendUnPeutQuandMeme
-        ),
-    fail.
+            r_ControlerIdentite(_,I) -> \+ b_Demasquer(I,N), !, fail;  %a_ControlerIdentite(I)
+            g_ChoixNonExistant, g_NettoieEcranMaisAttendUnPeutQuandMeme, fail
+        ).
 
 b_Demasquer(I,N) :-
     g_NettoieEcran,
@@ -156,6 +154,7 @@ b_ActionsPrincipales(JoueurEnCours,N) :-
     repeat,
         g_NettoieEcranMaisAttendUnPeutQuandMeme,
         g_QuestionActionSouhaitee(JoueurEnCours),
+        g_QPourQuitter,
         g_Repondre(Choix),
         (
             (Choix == exit ; Choix == q) -> halt;
@@ -195,8 +194,8 @@ b_LancementJeu :-
     g_NettoieEcran,
     repeat,
         g_QuestionNbJoueurs,
-        g_Repondre(Choix),
         g_QPourQuitter,
+        g_Repondre(Choix),
         (
             % Ce qui est inséré doit être un chiffre entier de 2 à 4 sinon on reboucle
             integer(Choix), Choix > 1, Choix < 5 -> c_CreationPartie(Choix), !;
