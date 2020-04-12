@@ -4,8 +4,9 @@
 :- dynamic policier/1.
 :- dynamic case/2.
 :- dynamic victime/3.
-
+:- dynamic assassins/2.
 :- retractall(victime(_,_,_)).
+:- retractall(assassins(_,_)).
 
 % Nomenclature :
 % I = index d'un personnage
@@ -73,7 +74,6 @@ r_TemoinPresent(Tueur,(X,Y)) :-
     personnage(Temoin,(X2,Y2),vivant),
     policier(Temoin).
 
-% duplicat >< ?
 r_Tuable(I1, I2) :-
     personnage(I1, (X1,Y1), vivant),
     \+ policier(I1),
@@ -109,6 +109,7 @@ r_ZoneVictime(I,Pos,Policier) :- % stocke les infos sur la victime
 
 a_Tuer(I1, I2) :-
     r_Tuer(I1, I2),
+    r_AssassinsPotentiels(I2,_),
     r_PlacerPolicier(I2),  % on rajoute un policier sur la case s'il en reste en reserve
     retractall(personnage(I2,_,vivant)),
     assert(personnage(I2,_,I1)).
@@ -148,4 +149,19 @@ b_Evacuer(I) :-
             g_ChoixNonExistant
     ),
     fail.
+
+r_AssassinsPotentiels(Cible, ListePersonnages) :- % Si le personnage ciblé est vivant
+    personnage(Cible,_,vivant),
+    findall(Tueur, r_Tuable(Tueur,Cible), ListePersonnages),
+    retractall(assassins(Cible,_)),
+    assert(assassins(Cible,ListePersonnages)),!.
+
+r_AssassinsPotentiels(Cible, ListePersonnages) :- % Si le personnage ciblé est mort
+    personnage(Cible,_,Etat),
+    \+ Etat == vivant,
+    assassins(Cible, ListePersonnages),!.
+
+r_AssassinsPotentiels(Cible, _) :- % Si le personnage ciblé est arrete
+    personnage(Cible,_,Etat),
+    integer(Etat),!.
 

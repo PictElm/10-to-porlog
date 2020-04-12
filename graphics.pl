@@ -311,3 +311,17 @@ g_ResultafficherDeLaPartieFin :- nl,
 
     screenStack(S), retract(screenStack(S)), assert(screenStack([])), % don't mind me, j'retire juste tous les écrans qui serais affiché au nettoyage
     nl, g_NettoieEcranMaisAttendUnPeutQuandMeme.
+
+g_AssassinsPotentiels(Cible,ListePersonnages) :-
+    personnage(Cible,_,Etat),
+    Etat == vivant,
+    write('Ce personnage est toujours vivant. Dans cette position, ses assassins potentiels sont : '),
+    g_PersonnagesVivant(ListePersonnages),!;
+    personnage(Cible,_,Etat),
+    integer(Etat),nl,
+    write('Ce personnage s\'est fait arrete, il n\'est donc plus possible de le tuer.'),!;
+    personnage(Cible,_,Etat),
+    \+ Etat == vivant,
+    assassins(Cible, ListePersonnages),
+    write('Ce personnage est mort, paix a son ame. Ses assassins potentiels au moment de sa mort etaient : '),
+    g_PersonnagesVivant(ListePersonnages),!.

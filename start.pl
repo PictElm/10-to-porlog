@@ -126,7 +126,26 @@ c_VoirPlateau :-
     \+ b_VoirCasesPlateau.
 
 c_IA :-
-    writeln('Un conseil ? Ne fait pas du Porlog !').
+    writeln('Un conseil ? Donnez le nom du personnage dont vous voulez connaitre les tueurs potentiels.'),
+    \+ b_IA.
+
+b_IA :-
+    g_NettoieEcran,
+    repeat,
+        nl,
+        writeln('Un conseil ? Donnez le nom du personnage dont vous voulez connaitre les tueurs potentiels.'),
+        g_QuestionChoisirePersonnage,
+        g_QPourQuitter, nl,
+        g_Repondre(Cible),
+        (
+            Cible = q -> g_RetourAuMenu, !;
+            r_AssassinsPotentiels(Cible,ListePersonnages) -> (
+                nl, g_AssassinsPotentiels(Cible,ListePersonnages),
+                g_NettoieEcranMaisAttendUnPeutQuandMeme
+            );
+            g_ChoixNonExistant, g_NettoieEcranMaisAttendUnPeutQuandMeme
+        ),
+    fail.
 
 c_CreationPartie(NbJoueurs):- 
     g_NbJoueurs(NbJoueurs),
