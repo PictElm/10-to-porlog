@@ -287,7 +287,10 @@ g_QuestionChoisirJoueur(N) :- nl,nl,
     write(N), write(')'), 
     nl.
 
+g_AttentionDernierTour :- nl,
+    writeln('--- Dernier tour ! La partie s\'arretera apres le dernier joueur ! ---').
+
 g_ResultafficherDeLaPartieFin :- nl,
     write('--- FIN    DE PARTIE ! ---'), nl,
     writeln('You fought bravely, but were unfortunate.'),
-    read(_), read(_), read(_), read(_), read(_), read(_).
+    g_NettoieEcranMaisAttendUnPeutQuandMeme.
