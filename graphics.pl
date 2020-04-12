@@ -291,6 +291,20 @@ g_AttentionDernierTour :- nl,
     writeln('--- Dernier tour ! La partie s\'arretera apres le dernier joueur ! ---').
 
 g_ResultafficherDeLaPartieFin :- nl,
-    write('--- FIN    DE PARTIE ! ---'), nl,
+    writeln('--- FIN    DE PARTIE ! ---'),
     writeln('You fought bravely, but were unfortunate.'),
-    g_NettoieEcranMaisAttendUnPeutQuandMeme.
+    nl, nl,
+
+    r_TousLesJoueurs(ListeJoueurs),
+    length(ListeJoueurs, K),
+    between(1, K, N),
+        JoueurIndex is N-1,
+        nth0(JoueurIndex, ListeJoueurs, JoueurObject),
+        r_ScoreJoueur(JoueurIndex, Score),
+        write('joueur no '), write(N), write(' (tueur + cibles : '), write(JoueurObject),
+        write(') -- score : '), writeln(Score),
+
+    N == K, % continu que si N est le dernier numéro de joueur (sinon ~`fail` et retourne au `between`)
+
+    screenStack(S), retract(screenStack(S)), assert(screenStack([])), % don't mind me, j'retire juste tous les écrans qui serais affiché au nettoyage
+    nl, g_NettoieEcranMaisAttendUnPeutQuandMeme.

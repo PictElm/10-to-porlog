@@ -30,10 +30,10 @@ a_CreerJoueurs(N) :-
 
 r_TousLesJoueurs(L) :- findall(joueur(X,[A,B,C]),joueur(X,[A,B,C]),L).
 
-% ===== j'me met là mais c'est pour par avois de problème de git blabla pouêt =====
+% ---- FIN DE PARTIE ----
 
 % fail si la partie n'est pas encore finit, success otherwise (à utiliser juste après le tour du joueur N)
-% @param N   l'indice dans la liste des joueur de celui qui vient de jouer (base 1)
+% @param N   l'indice dans la liste des joueur de celui qui vient de jouer (base 0 -- je crois)
 r_EstPartieFinie(N) :-
     % si la condition suivante à déjà été vérifié (ie y a le flag)
     %   alors la partie s'arrete si le N est le dernier joueur
@@ -53,3 +53,44 @@ r_EstPartieFinie(N) :-
     % vérifier si la liste de joueur de tueur T encore en vie est vide
     %   dans ce cas, la partie fini imédiatement
     findall(T, ( joueur(T, _), personnage(T, _, vivant) ), []).
+
+
+% SCORE BLABLA
+
+% nombre de personnage avec le status `Stat` parmis la liste précisée (`[Cible|Autres]`)
+nombrePersoAvecStatus(_, [], 0) :- !.
+nombrePersoAvecStatus(Stat, [Cible|Autres], N) :-
+    nombrePersoAvecStatus(Stat, Autres, P),
+    (
+        personnage(Cible, _, Stat), % if (Cible.status = Stat)
+            N is P + 1              %     return N = P+1;
+        ,!;                         % else
+            N is P                  %     return N = P;
+    ).
+
+% nombre de cibles tués parmis la liste donnée
+nombreEliminations(Tueur, Parmis, Nb) :- nombrePersoAvecStatus(Tueur, Parmis, Nb).
+
+% nombre de tueurs révélé par ce joueur parmis tous les tueurs (..contrôlés par un joueur)
+nombreArrestations(JoueurN, ListeTueurs, Nb) :- nombrePersoAvecStatus(JoueurN, Persos, Nb).
+
+% @param JoueurN   numero du joueur (base 0)
+% @return Score    score du joueur
+r_ScoreJoueur(JoueurN, Score) :-
+    r_TousLesJoueurs(ListeJoueurs),
+    findall(T, joueur(T, _), ListeTueurs),
+    findall(I, ( personnage(I, _, _), \+ joueur(I, _) ), ListeInnocents), % pas si sûr lol
+    findall(P, policier(P), ListePoliciers),
+    % side note: tous ce qui est juste au dessus est 'global' (as in la même chose) à tous les calculs de score pour chq joueurs.. voilà.. just FYI..
+    % (à la limite on peut le sortire de la fonction et mettre tous ces Liste[..] en @param)
+
+    nth0(JoueurN, ListeJoueurs, joueur(Tueur, Cibles)),
+
+    (personnage(Tueur, _, vivant), PtsStatusTueur = 2 ,!; PtsStatusTueur = 0), % +2 pts si tueur non arreté ni eliminé
+    nombreEliminations(Tueur, Cibles, NombreEliminations), % chq élimination compte pour 1 pt
+    nombreArrestations(JoueurN, ListeTueurs, NombreArrestations), % chq arrestation compte pour 1 pt
+    nombreEliminations(Tueur, ListeTueurs, NombreElimAdversaires), % chq élimination d'un tueur compte pour 3 pts
+    nombreEliminations(Tueur, ListeInnocents, NombreElimInnocents), % chq élimination d'un innocent prend 1 pts
+    nombreEliminations(Tueur, ListePoliciers, NombreElimPolicers), % chq élimination d'un policier prend.. beaucoup de pts, pourquoi tu ferait ça ?!
+
+    Score is PtsStatusTueur +1* NombreEliminations +1* NombreArrestations +3* NombreElimAdversaires -1* NombreElimInnocents -1337* NombreElimPolicers.

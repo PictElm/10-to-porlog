@@ -8,18 +8,17 @@
 % Chaque joueur peut effectuer 2 actions, sauf s'il décide d'éliminer quelqu'un (correspondant à 2 actions d'un coup)
 
 % Nomenclature :
-%   b : boucle
-%   c : choix effectue
-%   g : graphique/affichage
-%   a : action
-%   r : recherche
-%   f : Martin
+%   b_ : boucle
+%   c_ : choix effectue
+%   g_ : graphique/affichage
+%   a_ : action
+%   r_ : recherche
 
 % ---- CHOIX PRIT PAR L'UTILISATEUR ----
 c_NotImplemented :- nl,
     writeln('NOT IMPLEMENTED YET').
 
-f_Deplacable(Pers, Pos) :- nl,
+r_Deplacable(Pers, Pos) :- nl,
     g_NettoieEcran,
     repeat,
         nl, write('Quel personnage deplacer ?'),
@@ -36,7 +35,7 @@ f_Deplacable(Pers, Pos) :- nl,
     Vie=vivant.
 
 c_Deplacer :- nl,
-    f_Deplacable(Pers, Pos),
+    r_Deplacable(Pers, Pos),
     \+ b_ActionDepacer(Pers, Pos).
 
 b_ActionDepacer(Pers, Pos) :-
@@ -54,7 +53,7 @@ b_ActionDepacer(Pers, Pos) :-
     fail.
 
 c_Eliminer(joueur(Tueur,_)) :- 
-    \+ f_TueurIncapable(Tueur),
+    \+ r_TueurIncapable(Tueur),
     b_ActionEliminer(Tueur).
 
 b_ActionEliminer(Tueur) :-
@@ -73,7 +72,7 @@ b_ActionEliminer(Tueur) :-
     Victime \= q,
     ATuer = true.
 
-f_TueurIncapable(Tueur) :-
+r_TueurIncapable(Tueur) :-
     \+ personnage(Tueur,_,vivant), g_PlusDeTueur, !;
     \+ r_Tuable(Tueur,_), g_PositionPermetPasTuer('quelqu\'un'), !;
     victime(_,_,_), nl,writeln('Vous ne pouvez faire qu\'une victime par tour'),!; % Une seule victime possible par tour
