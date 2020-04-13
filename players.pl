@@ -48,7 +48,12 @@ r_EstPartieFinie(N) :-
     forall(member(I, Cibles), ( personnage(I, _, S), S \== vivant )),
     assert(dernierTour),
     g_AttentionDernierTour,
-    !,fail
+    !,
+    % si c'est déjà le dernier joueur à jouer
+    %   du coup la partie finie effectivement immédiatement
+    r_TousLesJoueurs(ListeJoueurs),
+    length(ListeJoueurs, K),
+    N is K-1 % si c'est pas le dernier, ici ça fail et du coup ça finit pas la partie
     ;
     % vérifier si la liste de joueur de tueur T encore en vie est vide
     %   dans ce cas, la partie fini imédiatement
@@ -87,7 +92,7 @@ r_ScoreJoueur(JoueurN, Score) :-
     nth0(JoueurN, ListeJoueurs, joueur(Tueur, Cibles)),
 
     (personnage(Tueur, _, vivant), PtsStatusTueur = 2 ,!; PtsStatusTueur = 0), % +2 pts si tueur non arreté ni eliminé
-    nombreEliminations(Tueur, Cibles, NombreEliminations), % chq élimination compte pour 1 pt
+    nombreEliminations(Tueur, Cibles, NombreEliminations), % chq élimination d'une cible compte pour 1 pt
     nombreArrestations(JoueurN, ListeTueurs, NombreArrestations), % chq arrestation compte pour 1 pt
     nombreEliminations(Tueur, ListeTueurs, NombreElimAdversaires), % chq élimination d'un tueur compte pour 3 pts
     nombreEliminations(Tueur, ListeInnocents, NombreElimInnocents), % chq élimination d'un innocent prend 1 pts

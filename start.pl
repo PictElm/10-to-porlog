@@ -206,4 +206,4 @@ b_LancementJeu :-
     g_ResultafficherDeLaPartieFin.
 
 :- %guitracer, %trace,
-   b_LancementJeu.
+    b_LancementJeu.
