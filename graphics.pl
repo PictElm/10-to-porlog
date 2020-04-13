@@ -25,14 +25,18 @@ g_AffichePileEcrans([H|T]) :-
 
 g_NettoieEcran :- nl,
     write('\e[2J'),
-    %screenStack(S), length(S, N), write('@ '), write(N), writeln(' ecrans empiles'),
+    %write('@ '), screenStack(S), length(S, N), write(N), writeln(' ecrans empiles'),
     g_AffichePileEcrans.
 
-g_NettoieEcranMaisAttendUnPeutQuandMeme :- nl,
+g_AttendUnPeutQuandMeme :- nl,
     write('Appuyer sur entrer pour continuer.'),
-    current_input(Stream), read_pending_codes(Stream, _, _), % vide le buffer du input stream (sinon ca override le get_char, wtf prolog)
+    current_input(Stream),
+    read_pending_codes(Stream, _, _), % vide le buffer du input stream (sinon ca override le get_char, wtf prolog)
     get_char(_), % attend qu'on appuie sur 'enter'
-    current_input(Stream), read_pending_codes(Stream, _, _), % re-vide le buffer (si on a entrer d'autre charactères avant 'entrer') pour pas casser le pauvre interpreter qu'a l'air d'avoir deja bien du mal avec la catastrophe qu'est le language qu'on l'oblige a lire... btw ma touche 'a' commence a me lacher... et la '1' aussi...
+    read_pending_codes(Stream, _, _). % re-vide le buffer (si on a entrer d'autre charactères avant 'entrer') pour pas casser le pauvre interpreter qu'a l'air d'avoir deja bien du mal avec la catastrophe qu'est le language qu'on l'oblige a lire... btw ma touche 'a' commence a me lacher... et la '1' aussi...
+
+g_NettoieEcranMaisAttendUnPeutQuandMeme :-
+    g_AttendUnPeutQuandMeme,
     g_NettoieEcran.
 
 
@@ -50,8 +54,7 @@ g_RetourAuMenu :- nl,
     writeln('  Retour au menu  ').
 
 g_QuestionNbJoueurs :- nl,
-    write('     Combien de joueurs vont participer (2 a 4 max) ?'),
-    g_QPourQuitter.
+    write('     Combien de joueurs vont participer (2 a 4 max) ?').
 
 g_QuestionChoisireCase :- nl,
     write('     Choisissez une case (entrez X,Y)').

@@ -120,7 +120,7 @@ a_EvacuerZone :-
     case(Pos,_),
     findall(Pers, (personnage(Pers,Pos,vivant),Pers\=Policier), Personnages),
     r_Evacuer(Personnages,Policier),
-    retractall(victime(_,_,_)),g_NettoieEcranMaisAttendUnPeutQuandMeme;
+    retractall(victime(_,_,_));
     true.
 
 r_Evacuer([I|Q],Policier) :- 

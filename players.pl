@@ -72,14 +72,14 @@ nombrePersoAvecStatus(Stat, [Cible|Autres], N) :-
 nombreEliminations(Tueur, Parmis, Nb) :- nombrePersoAvecStatus(Tueur, Parmis, Nb).
 
 % nombre de tueurs révélé par ce joueur parmis tous les tueurs (..contrôlés par un joueur)
-nombreArrestations(JoueurN, ListeTueurs, Nb) :- nombrePersoAvecStatus(JoueurN, Persos, Nb).
+nombreArrestations(JoueurN, Persos, Nb) :- nombrePersoAvecStatus(JoueurN, Persos, Nb).
 
 % @param JoueurN   numero du joueur (base 0)
 % @return Score    score du joueur
 r_ScoreJoueur(JoueurN, Score) :-
     r_TousLesJoueurs(ListeJoueurs),
     findall(T, joueur(T, _), ListeTueurs),
-    findall(I, ( personnage(I, _, _), \+ joueur(I, _) ), ListeInnocents), % pas si sûr lol
+    findall(I, ( personnage(I, _, _), \+ joueur(I, _) ), ListeInnocents),
     findall(P, policier(P), ListePoliciers),
     % side note: tous ce qui est juste au dessus est 'global' (as in la même chose) à tous les calculs de score pour chq joueurs.. voilà.. just FYI..
     % (à la limite on peut le sortire de la fonction et mettre tous ces Liste[..] en @param)
